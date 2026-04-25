@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CryptoSentiment AI Oracle</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      type="text/javascript"
+      src="https://s3.tradingview.com/tv.js"
+    ></script>
     <style>
       .circle-transition {
         transition: stroke-dasharray 1.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -27,7 +31,6 @@
           background-position: -100% 0;
         }
       }
-      /* Custom Scrollbar más limpia */
       .custom-scroll::-webkit-scrollbar {
         width: 6px;
       }
@@ -52,20 +55,18 @@
       class="bg-gray-800 p-6 rounded-2xl border border-gray-600 w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]"
     >
       <div class="flex justify-between items-center mb-6 flex-shrink-0">
-        <h2 class="text-xl font-bold text-white">⚙️ Fuentes RSS de Noticias</h2>
+        <h2 class="text-xl font-bold text-white">⚙️ Fuentes RSS</h2>
         <button
           onclick="toggleSettings()"
-          class="text-gray-400 hover:text-white font-bold text-2xl leading-none"
+          class="text-gray-400 hover:text-white font-bold text-2xl"
         >
           &times;
         </button>
       </div>
-
       <ul
         id="sources-list"
         class="space-y-3 mb-6 overflow-y-auto custom-scroll flex-1 pr-2"
       ></ul>
-
       <div class="flex gap-2 flex-shrink-0">
         <input
           type="url"
@@ -86,7 +87,7 @@
   <body
     class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center py-6 md:py-12"
   >
-    <div class="max-w-3xl w-full px-4 md:px-6">
+    <div class="max-w-4xl w-full px-4 md:px-6">
       <div class="text-center mb-10 relative">
         <button
           onclick="toggleSettings()"
@@ -157,9 +158,6 @@
         >
           Iniciando protocolo...
         </p>
-        <p class="text-gray-500 text-sm mt-2">
-          Este proceso toma aprox. 5-8 segundos
-        </p>
       </div>
 
       <div
@@ -189,81 +187,109 @@
         <div
           class="p-5 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 items-start"
         >
-          <div
-            class="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 mx-auto md:mx-0 md:mt-2"
-          >
-            <svg
-              class="w-full h-full transform -rotate-90 drop-shadow-lg"
-              viewBox="0 0 36 36"
-            >
-              <path
-                class="text-gray-700"
-                stroke-width="3"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                id="gauge-fill"
-                class="circle-transition text-gray-500"
-                stroke-dasharray="0, 100"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
+          <div class="flex flex-col items-center w-full md:w-auto">
             <div
-              class="absolute inset-0 flex flex-col items-center justify-center"
+              class="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 mx-auto md:mx-0"
+            >
+              <svg
+                class="w-full h-full transform -rotate-90 drop-shadow-lg"
+                viewBox="0 0 36 36"
+              >
+                <path
+                  class="text-gray-700"
+                  stroke-width="3"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  id="gauge-fill"
+                  class="circle-transition text-gray-500"
+                  stroke-dasharray="0, 100"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <div
+                class="absolute inset-0 flex flex-col items-center justify-center"
+              >
+                <span
+                  id="res-score"
+                  class="text-4xl md:text-5xl font-black tracking-tighter"
+                  >0</span
+                >
+                <span
+                  class="text-gray-500 text-[10px] md:text-xs font-bold uppercase mt-0 md:mt-1 tracking-widest"
+                  >Score</span
+                >
+              </div>
+            </div>
+
+            <div
+              id="score-history"
+              class="mt-6 bg-gray-900 px-4 py-3 rounded-xl border border-gray-700 text-center w-full md:w-auto hidden"
             >
               <span
-                id="res-score"
-                class="text-4xl md:text-5xl font-black tracking-tighter"
-                >0</span
+                class="text-[10px] text-gray-500 uppercase tracking-widest block mb-2"
+                >Memoria de Tendencia</span
               >
-              <span
-                class="text-gray-500 text-[10px] md:text-xs font-bold uppercase mt-0 md:mt-1 tracking-widest"
-                >Score</span
-              >
+              <div
+                id="history-dots"
+                class="flex items-center justify-center gap-2 text-sm font-bold"
+              ></div>
             </div>
           </div>
 
-          <div
-            class="flex-1 min-w-0 bg-gray-900 rounded-xl p-5 border border-gray-700 w-full shadow-inner flex flex-col"
-          >
-            <h3
-              class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"
+          <div class="flex-1 min-w-0 flex flex-col gap-6 w-full">
+            <div
+              class="bg-gray-900 rounded-xl p-5 border border-gray-700 w-full shadow-inner flex flex-col"
             >
-              <span
-                class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"
-              ></span>
-              Análisis de Gemini AI
-            </h3>
+              <h3
+                class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"
+                ></span>
+                Análisis de Gemini AI
+              </h3>
+              <ul
+                id="res-summary"
+                class="space-y-4 text-gray-300 mb-6 list-none"
+              ></ul>
 
-            <ul
-              id="res-summary"
-              class="space-y-4 text-gray-300 mb-8 list-none"
-            ></ul>
+              <div
+                id="references-container"
+                class="mt-auto pt-5 border-t border-gray-800 hidden"
+              >
+                <h4
+                  class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"
+                >
+                  🔗 Fuentes Analizadas
+                </h4>
+                <div
+                  id="res-references"
+                  class="flex flex-col gap-2 max-h-40 overflow-y-auto custom-scroll pr-3"
+                ></div>
+              </div>
+            </div>
 
             <div
-              id="references-container"
-              class="mt-auto pt-5 border-t border-gray-800 hidden"
+              id="tv-container"
+              class="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 w-full h-[400px] hidden shadow-inner relative"
             >
-              <h4
-                class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"
-              >
-                🔗 Fuentes Analizadas
-              </h4>
               <div
-                id="res-references"
-                class="flex flex-col gap-3 max-h-40 overflow-y-auto custom-scroll pr-3"
-              ></div>
+                class="absolute top-0 left-0 bg-gray-800 px-3 py-1 rounded-br-lg text-[10px] font-bold text-gray-400 uppercase z-10"
+              >
+                Gráfico Interactivo
+              </div>
+              <div id="tradingview_chart" class="w-full h-full"></div>
             </div>
           </div>
         </div>
       </div>
-
       <div
         id="error-card"
         class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center mb-8"
@@ -273,75 +299,50 @@
     </div>
 
     <script>
-      // ====== MODAL LOGIC ======
+      // MODAL (Se mantiene igual, comprimido)
       const modal = document.getElementById("settings-modal");
       const sourcesList = document.getElementById("sources-list");
-
       function toggleSettings() {
         modal.classList.toggle("hidden");
-        if (!modal.classList.contains("hidden")) {
-          loadSources();
-        }
+        if (!modal.classList.contains("hidden")) loadSources();
       }
-
       async function loadSources() {
-        sourcesList.innerHTML =
-          '<li class="text-gray-400 text-center text-sm py-4">Cargando fuentes...</li>';
         try {
           const res = await fetch("/api/v1/sources");
           const data = await res.json();
           sourcesList.innerHTML = "";
           data.sources.forEach((url) => {
-            sourcesList.innerHTML += `
-              <li class="flex justify-between items-center bg-gray-900/50 p-3 rounded-lg border border-gray-700 gap-3">
-                  <span class="text-xs md:text-sm text-gray-300 break-all">${url}</span>
-                  <button onclick="deleteSource('${url}')" class="text-gray-500 hover:text-red-400 transition-colors flex-shrink-0 p-1">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-              </li>`;
+            sourcesList.innerHTML += `<li class="flex justify-between items-center bg-gray-900/50 p-3 rounded-lg border border-gray-700 gap-3"><span class="text-xs text-gray-300 break-all">${url}</span><button onclick="deleteSource('${url}')" class="text-gray-500 hover:text-red-400 p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></li>`;
           });
-        } catch (e) {
-          sourcesList.innerHTML =
-            '<li class="text-red-400 text-center text-sm py-4">Error al cargar fuentes.</li>';
-        }
+        } catch (e) {}
       }
-
       async function addSource() {
-        const input = document.getElementById("new-source-url");
-        if (!input.value) return;
-        try {
-          await fetch("/api/v1/sources", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: input.value }),
-          });
-          input.value = "";
-          loadSources();
-        } catch (e) {
-          alert("Error al añadir la fuente");
-        }
+        const url = document.getElementById("new-source-url").value;
+        if (!url) return;
+        await fetch("/api/v1/sources", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        document.getElementById("new-source-url").value = "";
+        loadSources();
       }
-
       async function deleteSource(url) {
-        try {
-          await fetch("/api/v1/sources", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: url }),
-          });
-          loadSources();
-        } catch (e) {
-          alert("Error al eliminar la fuente");
-        }
+        await fetch("/api/v1/sources", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        loadSources();
       }
 
-      // ====== ANALYZER LOGIC ======
+      // ORACLE LOGIC
       const loadingTexts = [
         "Conectando con Binance API...",
-        "Descargando datos de Precio y Volumen...",
-        "Buscando últimas noticias en la red...",
-        "Procesando contexto con modelo Gemini AI...",
-        "Generando veredicto final...",
+        "Calculando RSI...",
+        "Leyendo Sentimiento Macro...",
+        "Analizando con IA Quant...",
+        "Dibujando Gráficos...",
       ];
 
       document
@@ -358,39 +359,36 @@
           const loadingState = document.getElementById("loading-state");
           const resultCard = document.getElementById("result-card");
           const errorCard = document.getElementById("error-card");
-          const loadingTextEl = document.getElementById("loading-text");
-          const gaugeFill = document.getElementById("gauge-fill");
+          const tvContainer = document.getElementById("tv-container");
 
           btn.disabled = true;
-          btn.classList.add("opacity-50", "cursor-not-allowed");
+          btn.classList.add("opacity-50");
           resultCard.classList.add("hidden");
           errorCard.classList.add("hidden");
           loadingState.classList.remove("hidden");
-          gaugeFill.setAttribute("stroke-dasharray", `0, 100`);
+          document
+            .getElementById("gauge-fill")
+            .setAttribute("stroke-dasharray", `0, 100`);
+          tvContainer.classList.add("hidden"); // Ocultar grafico TV al recargar
 
           let textIndex = 0;
-          loadingTextEl.textContent = loadingTexts[textIndex];
+          document.getElementById("loading-text").textContent = loadingTexts[0];
           const textInterval = setInterval(() => {
             textIndex++;
-            if (textIndex < loadingTexts.length) {
-              loadingTextEl.textContent = loadingTexts[textIndex];
-            }
+            if (textIndex < loadingTexts.length)
+              document.getElementById("loading-text").textContent =
+                loadingTexts[textIndex];
           }, 1200);
 
           try {
             const response = await fetch(`/api/v1/analyze/${ticker}`);
             const data = await response.json();
-
             if (!response.ok)
-              throw new Error(
-                data.detail || "Error desconocido procesando la solicitud.",
-              );
+              throw new Error(data.detail || "Error desconocido");
             clearInterval(textInterval);
 
-            // Rellenar cabecera
             document.getElementById("res-ticker").textContent = data.ticker;
 
-            // Animación del Score
             let currentScore = 0;
             const scoreInterval = setInterval(() => {
               if (currentScore >= data.score) {
@@ -402,11 +400,11 @@
               }
             }, 15);
 
-            // Colores del Badge y Gauge
             const badge = document.getElementById("res-badge");
             badge.textContent = data.sentiment;
             badge.className =
               "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase tracking-widest shadow-inner ";
+            const gaugeFill = document.getElementById("gauge-fill");
             gaugeFill.classList.remove(
               "text-green-500",
               "text-red-500",
@@ -449,45 +447,69 @@
               gaugeFill.setAttribute("stroke-dasharray", `${data.score}, 100`);
             }, 100);
 
-            // Renderizar Resumen de IA (Con flex-shrink-0 en el icono y break-words en el texto)
             const summaryList = document.getElementById("res-summary");
             summaryList.innerHTML = "";
-            const lines = data.summary
+            data.summary
               .split("\n")
-              .filter((line) => line.trim() !== "");
-            lines.forEach((line) => {
-              const cleanText = line.replace(/^(?:-\s*|\d+\.\s*)/, "").trim();
-              summaryList.innerHTML += `
-              <li class="flex items-start gap-3 w-full">
-                <span class="text-blue-500 mt-[2px] flex-shrink-0 text-sm">▶</span> 
-                <p class="text-gray-300 text-sm md:text-base leading-relaxed break-words flex-1">${cleanText}</p>
-              </li>
-            `;
-            });
+              .filter((l) => l.trim() !== "")
+              .forEach((line) => {
+                summaryList.innerHTML += `<li class="flex items-start gap-3 w-full"><span class="text-blue-500 mt-[2px] flex-shrink-0 text-sm">▶</span><p class="text-gray-300 text-sm md:text-base leading-relaxed break-words flex-1">${line.replace(/^(?:-\s*|\d+\.\s*)/, "").trim()}</p></li>`;
+              });
 
-            // RENDERIZAR REFERENCIAS (Ahora como tarjetas elegantes multilínea)
+            // HISTORIAL TENDENCIA (SQLITE)
+            const historyContainer = document.getElementById("score-history");
+            const historyDots = document.getElementById("history-dots");
+            if (data.history && data.history.length > 0) {
+              let dotsHTML = data.history
+                .map((s) => {
+                  let color =
+                    s >= 60
+                      ? "text-green-400"
+                      : s <= 40
+                        ? "text-red-400"
+                        : "text-gray-400";
+                  return `<span class="${color}">${s}</span>`;
+                })
+                .join('<span class="text-gray-600 text-[10px]">➔</span>');
+              historyDots.innerHTML = dotsHTML;
+              historyContainer.classList.remove("hidden");
+            } else {
+              historyContainer.classList.add("hidden");
+            }
+
+            // REFERENCIAS
             const refContainer = document.getElementById(
               "references-container",
             );
             const refDiv = document.getElementById("res-references");
             refDiv.innerHTML = "";
-
             if (data.references && data.references.length > 0) {
               data.references.forEach((ref) => {
-                refDiv.innerHTML += `
-                <a href="${ref.url}" target="_blank" rel="noopener noreferrer" 
-                   class="group flex items-start gap-3 bg-gray-800/60 p-3 rounded-lg border border-gray-700/60 hover:border-blue-500/50 hover:bg-gray-800 transition-all text-left">
-                   <span class="flex-shrink-0 text-gray-500 group-hover:text-blue-400 transition-colors mt-0.5 text-sm">🔗</span>
-                   <span class="text-xs md:text-sm text-gray-400 group-hover:text-gray-200 transition-colors break-words flex-1 leading-snug">
-                     ${ref.title}
-                   </span>
-                </a>
-              `;
+                refDiv.innerHTML += `<a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="group flex items-start gap-3 bg-gray-800/60 p-3 rounded-lg border border-gray-700/60 hover:border-blue-500/50 hover:bg-gray-800 transition-all text-left"><span class="flex-shrink-0 text-gray-500 group-hover:text-blue-400 transition-colors mt-0.5 text-sm">🔗</span><span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors break-words flex-1 leading-snug">${ref.title}</span></a>`;
               });
               refContainer.classList.remove("hidden");
             } else {
               refContainer.classList.add("hidden");
             }
+
+            // TRADINGVIEW WIDGET (Inyección Dinámica)
+            tvContainer.classList.remove("hidden");
+            new TradingView.widget({
+              autosize: true,
+              symbol: "BINANCE:" + ticker + "USDT",
+              interval: "D",
+              timezone: "Etc/UTC",
+              theme: "dark",
+              style: "1",
+              locale: "es",
+              enable_publishing: false,
+              backgroundColor: "#111827", // Tailwind gray-900
+              gridColor: "#1F2937", // Tailwind gray-800
+              hide_top_toolbar: true,
+              hide_legend: true,
+              save_image: false,
+              container_id: "tradingview_chart",
+            });
 
             loadingState.classList.add("hidden");
             resultCard.classList.remove("hidden");
@@ -499,7 +521,7 @@
             errorCard.classList.remove("hidden");
           } finally {
             btn.disabled = false;
-            btn.classList.remove("opacity-50", "cursor-not-allowed");
+            btn.classList.remove("opacity-50");
           }
         });
     </script>

@@ -54,3 +54,22 @@ class DatabaseClient:
         except Exception as e:
             logger.error(f"Error leyendo SQLite: {e}")
             return None
+    
+    @classmethod
+    def get_history(cls, ticker: str, limit: int = 5) -> list[int]:
+        """Obtiene el historial de scores para dibujar la tendencia."""
+        try:
+            with sqlite3.connect(cls.DB_FILE) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT score FROM sentiment_history WHERE ticker = ? ORDER BY timestamp DESC LIMIT ?", 
+                    (ticker.upper(), limit)
+                )
+                results = cursor.fetchall()
+                # Extraemos los números y los invertimos (del más antiguo al más nuevo)
+                scores = [r[0] for r in results]
+                scores.reverse()
+                return scores
+        except Exception as e:
+            logger.error(f"Error leyendo historial SQLite: {e}")
+            return []

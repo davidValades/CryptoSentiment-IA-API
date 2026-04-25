@@ -28,6 +28,9 @@ class SentimentResponse(BaseModel):
         default=[], 
         description="Noticias utilizadas como contexto con sus respectivos enlaces"
     )
+    history: List[int] = Field(
+        default=[], 
+        description="Historial de scores de los últimos 5 análisis")
 
     model_config = {
         "json_schema_extra": {

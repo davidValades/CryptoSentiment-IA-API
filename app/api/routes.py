@@ -29,10 +29,8 @@ async def analyze_crypto_sentiment(
     
     try:
         logger.info(f"Obteniendo datos de Binance para {ticker_upper}...")
-        # El cliente ya le añade el "USDT" por dentro, le pasamos solo el ticker
         binance_data = await BinanceClient.get_24h_ticker(ticker_upper)
         
-        # ---> AQUÍ ESTÁ LA LÍNEA NUEVA QUE FALTABA <---
         logger.info(f"Calculando RSI de 14 días para {ticker_upper}...")
         rsi_value = await BinanceClient.get_rsi_14d(ticker_upper)
         
@@ -53,14 +51,17 @@ async def analyze_crypto_sentiment(
         analysis_result = await SentimentAgent.analyze_market_data(
             ticker=ticker_upper,
             binance_data=binance_data,
-            rsi_value=rsi_value, # ¡Ahora sí existe la variable que le pasamos aquí!
+            rsi_value=rsi_value,
             headlines=headlines,
             fng_data=fng_data,
             previous_score=previous_score
         )
+
+        logger.info(f"Cargando historial visual para {ticker_upper}...")
+        analysis_result.history = DatabaseClient.get_history(ticker_upper, limit=5)
         
         DatabaseClient.save_score(ticker_upper, analysis_result.score)
-        
+
         # 3. Retorno de la respuesta validada
         return analysis_result
 
