@@ -2,6 +2,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Path
 from app.services.binance_client import BinanceClient
 from app.services.news_client import NewsClient
+from app.services.fng_client import FNGClient
 from app.services.ai_agent import SentimentAgent
 from app.models.sentiment import SentimentResponse
 
@@ -33,6 +34,11 @@ async def analyze_crypto_sentiment(
         logger.info(f"Obteniendo noticias RSS para {ticker_upper}...")
         headlines = await NewsClient.get_latest_headlines(currency=ticker_upper, limit=15)
         
+        logger.info(f"Obteniendo datos del Fear & Greed Index para {ticker_upper}...")
+        fng_data = await FNGClient.get_sentiment()
+
+        headlines = await NewsClient.get_latest_headlines(currency=ticker_upper, limit=15)
+        
         if not headlines:
             logger.warning(f"No se encontraron noticias recientes para {ticker_upper}.")
             
@@ -41,7 +47,8 @@ async def analyze_crypto_sentiment(
         analysis_result = await SentimentAgent.analyze_market_data(
             ticker=ticker_upper,
             binance_data=binance_data,
-            headlines=headlines
+            headlines=headlines,
+            fng_data=fng_data
         )
         
         # 3. Retorno de la respuesta validada

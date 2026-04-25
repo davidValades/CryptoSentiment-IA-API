@@ -29,7 +29,8 @@ class SentimentAgent:
     async def analyze_market_data(
         ticker: str, 
         binance_data: dict, 
-        headlines: list[str]
+        headlines: list[str],
+        fng_data: dict,
     ) -> SentimentResponse:
         
         # 1. EXTRACCIÓN DE DATOS CRUDOS
@@ -66,7 +67,10 @@ class SentimentAgent:
 
         user_prompt = f"""
         Analiza el activo: {ticker.upper()}
-        (Contexto: El activo ha tenido un cambio de {change_str} hoy).
+        (Contexto Numérico: El activo ha tenido un cambio de {change_str} hoy).
+        
+        SENTIMIENTO MACRO DEL MERCADO:
+        - Fear & Greed Index: {fng_data.get('value', '50')}/100 ({fng_data.get('classification', 'Neutral')})
         
         TITULARES DE NOTICIAS RECIENTES:
         {formatted_headlines}
