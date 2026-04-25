@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse # Importación nueva
 from app.core.config import settings
 from app.api.routes import router as api_router
+from app.services.db_client import DatabaseClient
+
 
 app = FastAPI(
     title="🔮 CryptoSentiment AI Oracle",
@@ -12,6 +14,7 @@ app = FastAPI(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR, tags=["Sentiment Oracle"])
+DatabaseClient.initialize_db()
 
 # === ENDPOINT MODIFICADO ===
 # Ahora la raíz sirve el archivo HTML

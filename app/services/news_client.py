@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 class NewsClient:
     SOURCES_FILE = "sources.json"
 
-    # Fuentes iniciales por defecto, se pueden modificar desde el modal de configuración
     DEFAULT_SOURCES = [
         "https://cointelegraph.com/rss",
         "https://cryptonews.com/news/feed/",
@@ -24,7 +23,6 @@ class NewsClient:
 
     @classmethod
     def get_sources(cls) -> list[str]:
-        """Carga las fuentes desde el JSON. Si no existe, lo crea con las default."""
         if not os.path.exists(cls.SOURCES_FILE):
             try:
                 with open(cls.SOURCES_FILE, 'w') as f:
@@ -60,27 +58,39 @@ class NewsClient:
         return sources
 
     @classmethod
-    async def fetch_one_source(cls, url: str) -> list[str]:
+    async def fetch_one_source(cls, url: str) -> list[dict]:
         async with httpx.AsyncClient() as client:
             try:
                 headers = {"User-Agent": "Mozilla/5.0"}
                 response = await client.get(url, headers=headers, timeout=8.0)
                 root = ET.fromstring(response.text)
-                return [item.find('title').text for item in root.findall('./channel/item') if item.find('title') is not None]
+                
+                news_items = []
+                for item in root.findall('./channel/item'):
+                    title = item.find('title')
+                    link = item.find('link')
+                    # Extraemos título y url para nuestra trazabilidad
+                    if title is not None and title.text and link is not None and link.text:
+                        news_items.append({
+                            "title": title.text.strip(),
+                            "url": link.text.strip()
+                        })
+                return news_items
             except Exception as e:
                 logger.warning(f"Error consultando fuente {url}: {e}")
                 return []
 
     @classmethod
-    async def get_latest_headlines(cls, currency: str = "BTC", limit: int = 15) -> list[str]:
+    async def get_latest_headlines(cls, currency: str = "BTC", limit: int = 15) -> list[dict]:
         active_sources = cls.get_sources()
         
         tasks = [cls.fetch_one_source(url) for url in active_sources]
         results = await asyncio.gather(*tasks)
         
-        all_headlines = [h for source_list in results for h in source_list]
+        # Aplanamos la lista de diccionarios
+        all_news = [item for source_list in results for item in source_list]
         currency_upper = currency.upper()
         
-        # Filtramos por el ticker
-        filtered = [h for h in all_headlines if currency_upper in h.upper()][:limit]
+        # Filtramos buscando el ticker dentro de la clave 'title'
+        filtered = [item for item in all_news if currency_upper in item["title"].upper()][:limit]
         return filtered

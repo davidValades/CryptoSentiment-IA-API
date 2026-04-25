@@ -6,11 +6,9 @@
     <title>CryptoSentiment AI Oracle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Transición suave para el gráfico circular */
       .circle-transition {
         transition: stroke-dasharray 1.5s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      /* Barra de carga animada de fondo */
       .loading-bar {
         background-size: 200% 100%;
         animation: gradientMove 2s infinite linear;
@@ -29,20 +27,35 @@
           background-position: -100% 0;
         }
       }
+      /* Custom Scrollbar más limpia */
+      .custom-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb {
+        background: #374151;
+        border-radius: 10px;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb:hover {
+        background: #4b5563;
+      }
     </style>
   </head>
+
   <div
     id="settings-modal"
-    class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+    class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
   >
     <div
-      class="bg-gray-800 p-6 rounded-2xl border border-gray-600 w-full max-w-lg shadow-2xl"
+      class="bg-gray-800 p-6 rounded-2xl border border-gray-600 w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]"
     >
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex justify-between items-center mb-6 flex-shrink-0">
         <h2 class="text-xl font-bold text-white">⚙️ Fuentes RSS de Noticias</h2>
         <button
           onclick="toggleSettings()"
-          class="text-gray-400 hover:text-white font-bold text-xl"
+          class="text-gray-400 hover:text-white font-bold text-2xl leading-none"
         >
           &times;
         </button>
@@ -50,10 +63,10 @@
 
       <ul
         id="sources-list"
-        class="space-y-3 mb-6 max-h-60 overflow-y-auto"
+        class="space-y-3 mb-6 overflow-y-auto custom-scroll flex-1 pr-2"
       ></ul>
 
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-shrink-0">
         <input
           type="url"
           id="new-source-url"
@@ -70,66 +83,14 @@
     </div>
   </div>
 
-  <script>
-    const modal = document.getElementById("settings-modal");
-    const sourcesList = document.getElementById("sources-list");
-
-    function toggleSettings() {
-      modal.classList.toggle("hidden");
-      if (!modal.classList.contains("hidden")) {
-        loadSources();
-      }
-    }
-
-    async function loadSources() {
-      sourcesList.innerHTML =
-        '<li class="text-gray-400 text-center">Cargando fuentes...</li>';
-      const res = await fetch("/api/v1/sources");
-      const data = await res.json();
-
-      sourcesList.innerHTML = "";
-      data.sources.forEach((url) => {
-        sourcesList.innerHTML += `
-                    <li class="flex justify-between items-center bg-gray-900 p-3 rounded-lg border border-gray-700">
-                        <span class="text-sm text-gray-300 truncate mr-4">${url}</span>
-                        <button onclick="deleteSource('${url}')" class="text-red-400 hover:text-red-300">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </li>
-                `;
-      });
-    }
-
-    async function addSource() {
-      const input = document.getElementById("new-source-url");
-      if (!input.value) return;
-
-      await fetch("/api/v1/sources", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: input.value }),
-      });
-      input.value = "";
-      loadSources();
-    }
-
-    async function deleteSource(url) {
-      await fetch("/api/v1/sources", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url }),
-      });
-      loadSources();
-    }
-  </script>
   <body
-    class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center py-12"
+    class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center py-6 md:py-12"
   >
-    <div class="max-w-2xl w-full px-6">
+    <div class="max-w-3xl w-full px-4 md:px-6">
       <div class="text-center mb-10 relative">
         <button
           onclick="toggleSettings()"
-          class="absolute right-0 top-0 mt-2 mr-2 text-gray-400 hover:text-white transition"
+          class="absolute right-0 top-0 mt-2 text-gray-400 hover:text-white transition"
         >
           <svg
             class="w-7 h-7"
@@ -152,23 +113,23 @@
           </svg>
         </button>
         <h1
-          class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2"
+          class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2 mt-8 md:mt-0"
         >
           🔮 CryptoSentiment Oracle
         </h1>
-        <p class="text-gray-400">
+        <p class="text-gray-400 text-sm md:text-base">
           Inteligencia Artificial para mercados volátiles
         </p>
       </div>
 
       <div
-        class="bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-700 mb-8"
+        class="bg-gray-800 p-5 md:p-6 rounded-2xl shadow-lg border border-gray-700 mb-8"
       >
-        <form id="analyze-form" class="flex gap-4">
+        <form id="analyze-form" class="flex flex-col md:flex-row gap-4">
           <input
             type="text"
             id="ticker-input"
-            placeholder="Ej. BTC, ETH, RON"
+            placeholder="Ej. BTC, ETH, SOL"
             required
             autocomplete="off"
             class="flex-1 bg-gray-900 text-white px-5 py-3 rounded-xl border border-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 uppercase placeholder-gray-500 transition-colors"
@@ -176,7 +137,7 @@
           <button
             type="submit"
             id="submit-btn"
-            class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/30"
+            class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/30 whitespace-nowrap"
           >
             Analizar
           </button>
@@ -185,7 +146,7 @@
 
       <div
         id="loading-state"
-        class="hidden bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center shadow-xl"
+        class="hidden bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center shadow-xl mb-8"
       >
         <div class="h-2 w-full bg-gray-700 rounded-full overflow-hidden mb-6">
           <div class="h-full loading-bar w-full"></div>
@@ -203,27 +164,38 @@
 
       <div
         id="result-card"
-        class="hidden bg-gray-800 rounded-2xl shadow-xl border border-gray-700 overflow-hidden"
+        class="hidden bg-gray-800 rounded-2xl shadow-xl border border-gray-700 overflow-hidden mb-8"
       >
         <div
-          class="p-6 border-b border-gray-700 flex justify-between items-center bg-gray-800/80"
+          class="p-5 md:p-6 border-b border-gray-700 flex justify-between items-center bg-gray-800/80"
         >
-          <div class="flex items-center gap-3">
-            <h2 class="text-3xl font-black tracking-tight" id="res-ticker">
+          <div class="flex items-center gap-2 md:gap-3">
+            <h2
+              class="text-2xl md:text-3xl font-black tracking-tight"
+              id="res-ticker"
+            >
               BTC
             </h2>
-            <span class="text-gray-500 font-medium">/ USDT</span>
+            <span class="text-gray-500 font-medium text-sm md:text-base"
+              >/ USDT</span
+            >
           </div>
           <span
             id="res-badge"
-            class="px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-widest shadow-inner"
-          >
-          </span>
+            class="px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase tracking-widest shadow-inner"
+          ></span>
         </div>
 
-        <div class="p-6 flex flex-col md:flex-row gap-8 items-center">
-          <div class="relative w-40 h-40 flex-shrink-0">
-            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+        <div
+          class="p-5 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 items-start"
+        >
+          <div
+            class="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 mx-auto md:mx-0 md:mt-2"
+          >
+            <svg
+              class="w-full h-full transform -rotate-90 drop-shadow-lg"
+              viewBox="0 0 36 36"
+            >
               <path
                 class="text-gray-700"
                 stroke-width="3"
@@ -245,15 +217,20 @@
             <div
               class="absolute inset-0 flex flex-col items-center justify-center"
             >
-              <span id="res-score" class="text-5xl font-black">0</span>
-              <span class="text-gray-500 text-xs font-bold uppercase mt-1"
+              <span
+                id="res-score"
+                class="text-4xl md:text-5xl font-black tracking-tighter"
+                >0</span
+              >
+              <span
+                class="text-gray-500 text-[10px] md:text-xs font-bold uppercase mt-0 md:mt-1 tracking-widest"
                 >Score</span
               >
             </div>
           </div>
 
           <div
-            class="flex-1 bg-gray-900 rounded-xl p-5 border border-gray-700 w-full shadow-inner"
+            class="flex-1 min-w-0 bg-gray-900 rounded-xl p-5 border border-gray-700 w-full shadow-inner flex flex-col"
           >
             <h3
               class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"
@@ -263,28 +240,107 @@
               ></span>
               Análisis de Gemini AI
             </h3>
+
             <ul
               id="res-summary"
-              class="space-y-4 text-gray-300 text-sm md:text-base leading-relaxed list-none"
+              class="space-y-4 text-gray-300 mb-8 list-none"
             ></ul>
+
+            <div
+              id="references-container"
+              class="mt-auto pt-5 border-t border-gray-800 hidden"
+            >
+              <h4
+                class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"
+              >
+                🔗 Fuentes Analizadas
+              </h4>
+              <div
+                id="res-references"
+                class="flex flex-col gap-3 max-h-40 overflow-y-auto custom-scroll pr-3"
+              ></div>
+            </div>
           </div>
         </div>
       </div>
 
       <div
         id="error-card"
-        class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center mt-6"
+        class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center mb-8"
       >
         <p id="error-message" class="text-red-400 font-medium"></p>
       </div>
     </div>
 
     <script>
+      // ====== MODAL LOGIC ======
+      const modal = document.getElementById("settings-modal");
+      const sourcesList = document.getElementById("sources-list");
+
+      function toggleSettings() {
+        modal.classList.toggle("hidden");
+        if (!modal.classList.contains("hidden")) {
+          loadSources();
+        }
+      }
+
+      async function loadSources() {
+        sourcesList.innerHTML =
+          '<li class="text-gray-400 text-center text-sm py-4">Cargando fuentes...</li>';
+        try {
+          const res = await fetch("/api/v1/sources");
+          const data = await res.json();
+          sourcesList.innerHTML = "";
+          data.sources.forEach((url) => {
+            sourcesList.innerHTML += `
+              <li class="flex justify-between items-center bg-gray-900/50 p-3 rounded-lg border border-gray-700 gap-3">
+                  <span class="text-xs md:text-sm text-gray-300 break-all">${url}</span>
+                  <button onclick="deleteSource('${url}')" class="text-gray-500 hover:text-red-400 transition-colors flex-shrink-0 p-1">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+              </li>`;
+          });
+        } catch (e) {
+          sourcesList.innerHTML =
+            '<li class="text-red-400 text-center text-sm py-4">Error al cargar fuentes.</li>';
+        }
+      }
+
+      async function addSource() {
+        const input = document.getElementById("new-source-url");
+        if (!input.value) return;
+        try {
+          await fetch("/api/v1/sources", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: input.value }),
+          });
+          input.value = "";
+          loadSources();
+        } catch (e) {
+          alert("Error al añadir la fuente");
+        }
+      }
+
+      async function deleteSource(url) {
+        try {
+          await fetch("/api/v1/sources", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: url }),
+          });
+          loadSources();
+        } catch (e) {
+          alert("Error al eliminar la fuente");
+        }
+      }
+
+      // ====== ANALYZER LOGIC ======
       const loadingTexts = [
         "Conectando con Binance API...",
         "Descargando datos de Precio y Volumen...",
         "Buscando últimas noticias en la red...",
-        "Procesando contexto con modelo Gemini 3.1...",
+        "Procesando contexto con modelo Gemini AI...",
         "Generando veredicto final...",
       ];
 
@@ -292,14 +348,12 @@
         .getElementById("analyze-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-
           const ticker = document
             .getElementById("ticker-input")
             .value.trim()
             .toUpperCase();
           if (!ticker) return;
 
-          // Variables de UI
           const btn = document.getElementById("submit-btn");
           const loadingState = document.getElementById("loading-state");
           const resultCard = document.getElementById("result-card");
@@ -307,15 +361,13 @@
           const loadingTextEl = document.getElementById("loading-text");
           const gaugeFill = document.getElementById("gauge-fill");
 
-          // Preparar UI para la carga
           btn.disabled = true;
           btn.classList.add("opacity-50", "cursor-not-allowed");
           resultCard.classList.add("hidden");
           errorCard.classList.add("hidden");
           loadingState.classList.remove("hidden");
-          gaugeFill.setAttribute("stroke-dasharray", `0, 100`); // Reset gráfico
+          gaugeFill.setAttribute("stroke-dasharray", `0, 100`);
 
-          // Lógica del "Smart Loader"
           let textIndex = 0;
           loadingTextEl.textContent = loadingTexts[textIndex];
           const textInterval = setInterval(() => {
@@ -323,25 +375,22 @@
             if (textIndex < loadingTexts.length) {
               loadingTextEl.textContent = loadingTexts[textIndex];
             }
-          }, 1200); // Cambia el texto cada 1.2 segundos
+          }, 1200);
 
           try {
-            // Llamada real al Oráculo (Tu API FastAPI)
             const response = await fetch(`/api/v1/analyze/${ticker}`);
             const data = await response.json();
 
-            if (!response.ok) {
+            if (!response.ok)
               throw new Error(
                 data.detail || "Error desconocido procesando la solicitud.",
               );
-            }
+            clearInterval(textInterval);
 
-            clearInterval(textInterval); // Parar los textos
-
-            // ====== RELLENAR DATOS ======
+            // Rellenar cabecera
             document.getElementById("res-ticker").textContent = data.ticker;
 
-            // Animación del número (Score)
+            // Animación del Score
             let currentScore = 0;
             const scoreInterval = setInterval(() => {
               if (currentScore >= data.score) {
@@ -351,13 +400,13 @@
                 currentScore++;
                 document.getElementById("res-score").textContent = currentScore;
               }
-            }, 15); // Velocidad del contador
+            }, 15);
 
-            // Lógica de Colores según Sentimiento
+            // Colores del Badge y Gauge
             const badge = document.getElementById("res-badge");
             badge.textContent = data.sentiment;
             badge.className =
-              "px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-widest shadow-inner ";
+              "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase tracking-widest shadow-inner ";
             gaugeFill.classList.remove(
               "text-green-500",
               "text-red-500",
@@ -373,7 +422,7 @@
               );
               gaugeFill.classList.add("text-green-500");
               document.getElementById("res-score").className =
-                "text-5xl font-black text-green-400";
+                "text-4xl md:text-5xl font-black tracking-tighter text-green-400";
             } else if (data.sentiment === "Bearish") {
               badge.classList.add(
                 "bg-red-500/20",
@@ -383,7 +432,7 @@
               );
               gaugeFill.classList.add("text-red-500");
               document.getElementById("res-score").className =
-                "text-5xl font-black text-red-400";
+                "text-4xl md:text-5xl font-black tracking-tighter text-red-400";
             } else {
               badge.classList.add(
                 "bg-gray-500/20",
@@ -393,28 +442,53 @@
               );
               gaugeFill.classList.add("text-gray-400");
               document.getElementById("res-score").className =
-                "text-5xl font-black text-white";
+                "text-4xl md:text-5xl font-black tracking-tighter text-white";
             }
 
-            // Animar el Gráfico Circular con un pequeño delay para mejor efecto visual
             setTimeout(() => {
               gaugeFill.setAttribute("stroke-dasharray", `${data.score}, 100`);
             }, 100);
 
-            // Formatear y mostrar el resumen
+            // Renderizar Resumen de IA (Con flex-shrink-0 en el icono y break-words en el texto)
             const summaryList = document.getElementById("res-summary");
             summaryList.innerHTML = "";
             const lines = data.summary
               .split("\n")
               .filter((line) => line.trim() !== "");
             lines.forEach((line) => {
-              const li = document.createElement("li");
-              li.className = "flex items-start gap-3";
-              li.innerHTML = `<span class="text-blue-500 mt-1">▶</span> <p>${line.replace(/^(?:-\s*|\d+\.\s*)/, "").trim()}</p>`;
-              summaryList.appendChild(li);
+              const cleanText = line.replace(/^(?:-\s*|\d+\.\s*)/, "").trim();
+              summaryList.innerHTML += `
+              <li class="flex items-start gap-3 w-full">
+                <span class="text-blue-500 mt-[2px] flex-shrink-0 text-sm">▶</span> 
+                <p class="text-gray-300 text-sm md:text-base leading-relaxed break-words flex-1">${cleanText}</p>
+              </li>
+            `;
             });
 
-            // Mostrar resultados
+            // RENDERIZAR REFERENCIAS (Ahora como tarjetas elegantes multilínea)
+            const refContainer = document.getElementById(
+              "references-container",
+            );
+            const refDiv = document.getElementById("res-references");
+            refDiv.innerHTML = "";
+
+            if (data.references && data.references.length > 0) {
+              data.references.forEach((ref) => {
+                refDiv.innerHTML += `
+                <a href="${ref.url}" target="_blank" rel="noopener noreferrer" 
+                   class="group flex items-start gap-3 bg-gray-800/60 p-3 rounded-lg border border-gray-700/60 hover:border-blue-500/50 hover:bg-gray-800 transition-all text-left">
+                   <span class="flex-shrink-0 text-gray-500 group-hover:text-blue-400 transition-colors mt-0.5 text-sm">🔗</span>
+                   <span class="text-xs md:text-sm text-gray-400 group-hover:text-gray-200 transition-colors break-words flex-1 leading-snug">
+                     ${ref.title}
+                   </span>
+                </a>
+              `;
+              });
+              refContainer.classList.remove("hidden");
+            } else {
+              refContainer.classList.add("hidden");
+            }
+
             loadingState.classList.add("hidden");
             resultCard.classList.remove("hidden");
           } catch (error) {
