@@ -40,9 +40,9 @@ class BinanceClient:
                 
                 return {
                     "symbol": data.get("symbol"),
-                    "last_price": float(data.get("lastPrice", 0)),
-                    "price_change_percent": float(data.get("priceChangePercent", 0)),
-                    "volume_24h": float(data.get("volume", 0))
+                    "last_price": data.get("lastPrice", "0"),
+                    "price_change_percent": data.get("priceChangePercent", "0"),
+                    "volume_24h": float(data.get("quoteVolume", 0))
                 }
             except Exception as e:
                 logger.error(f"Error en Binance Client: {e}")
