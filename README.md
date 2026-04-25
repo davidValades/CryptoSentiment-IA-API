@@ -1,40 +1,51 @@
-# 🔮 CryptoSentiment AI API | Market Oracle
+# 🔮 CryptoSentiment AI API (MVP 1.0)
 
-![Status](https://img.shields.io/badge/Estado-En_Desarrollo_🚀-2ea44f?style=for-the-badge)
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
-![Gemini AI](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+API RESTful que actúa como un **Oráculo de Mercado**. Combina datos cuantitativos (Binance) y cualitativos (Noticias RSS) para generar un análisis de sentimiento mediante **Google Gemini 2.0 Flash**.
 
-Una API RESTful de análisis cuantitativo y cualitativo que actúa como un "Oráculo" del mercado de criptomonedas. El sistema ingiere datos de mercado en tiempo real y titulares de noticias financieras para alimentar a un modelo de Inteligencia Artificial (Google Gemini), devolviendo un análisis de sentimiento y predicción de tendencias.
+## 🚀 Características
 
----
-
-## 🏗️ Arquitectura y Diseño del Sistema
-
-El proyecto está diseñado bajo los principios de **Clean Architecture**, asegurando la separación de responsabilidades y la escalabilidad de las fuentes de datos (MVP V1.0):
-
-* **📊 Ingestión Cuantitativa (El Latido):** Extracción asíncrona de datos de precios y volumen a través de la API pública de Binance.
-* **📰 Ingestión Cualitativa (El Termómetro):** Agregación de los últimos titulares del mercado cripto para evaluar el sentimiento social y el pánico/euforia.
-* **🧠 Motor de Inferencia AI (Gemini):** Procesamiento del contexto combinado mediante técnicas de *Prompt Engineering* estricto para devolver estructuras JSON válidas con puntuaciones de sentimiento.
-* **⚡ Framework Asíncrono:** Desarrollado sobre FastAPI y `httpx` para manejar peticiones de red concurrentes sin bloqueos (I/O Bound operations).
-
----
+- **Arquitectura Limpia**: Separación de responsabilidades (Servicios, Modelos, Rutas).
+- **IA Multimodal**: Procesa texto y datos numéricos en un solo prompt.
+- **Asíncrona**: Construida sobre FastAPI y HTTPX para máximo rendimiento.
+- **Validación Estricta**: Pydantic v2 garantiza que la IA siempre responda en el formato correcto.
 
 ## 🛠️ Stack Tecnológico
 
-* **Backend Framework:** Python 3.12+ / FastAPI
-* **Inteligencia Artificial:** Google AI Studio (Gemini API)
-* **Peticiones HTTP:** Httpx (Asynchronous HTTP Client)
-* **Fuentes de Datos:** Binance API / CryptoPanic API
+- **Lenguaje:** Python 3.12+
+- **Framework:** FastAPI
+- **IA:** Google GenAI SDK (Gemini 2.0 Flash)
+- **Datos:** Binance API & RSS News Feeds
 
----
+## 🔧 Instalación y Setup
 
-## 🚀 Instalación y Uso Local (Modo Desarrollo)
-
-*(Las instrucciones se irán completando a medida que desarrollemos el proyecto)*
-
-1. Clona el repositorio:
+1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/davidValades/cryptosentiment-ai.git](https://github.com/davidValades/cryptosentiment-ai.git)
-   cd cryptosentiment-ai
+   git clone [https://github.com/davidValades/CryptoSentiment-IA-API.git](https://github.com/davidValades/CryptoSentiment-IA-API.git)
+   cd CryptoSentiment-IA-API
    ```
+2. **Crear entorno virtual:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # En Windows: venv\Scripts\activate
+   ```
+3. **Instalar dependencias:**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configurar variables de entorno:**
+   Crea un archivo ".env" en la raíz con:
+   ```bash
+   GEMINI_API_KEY=tu_clave_de_google_ai_studio
+   ```
+
+## 📈 Uso
+
+Inicia el servidor:
+
+```bash
+uvicorn main:app --reload
+```
+
+Accede a la documentación interactiva en: http://127.0.0.1:8000/docs
