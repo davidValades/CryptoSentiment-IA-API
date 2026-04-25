@@ -31,11 +31,126 @@
       }
     </style>
   </head>
+  <div
+    id="settings-modal"
+    class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-gray-800 p-6 rounded-2xl border border-gray-600 w-full max-w-lg shadow-2xl"
+    >
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-white">⚙️ Fuentes RSS de Noticias</h2>
+        <button
+          onclick="toggleSettings()"
+          class="text-gray-400 hover:text-white font-bold text-xl"
+        >
+          &times;
+        </button>
+      </div>
+
+      <ul
+        id="sources-list"
+        class="space-y-3 mb-6 max-h-60 overflow-y-auto"
+      ></ul>
+
+      <div class="flex gap-2">
+        <input
+          type="url"
+          id="new-source-url"
+          placeholder="https://ejemplo.com/rss"
+          class="flex-1 bg-gray-900 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+        />
+        <button
+          onclick="addSource()"
+          class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg font-bold text-white transition"
+        >
+          Añadir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById("settings-modal");
+    const sourcesList = document.getElementById("sources-list");
+
+    function toggleSettings() {
+      modal.classList.toggle("hidden");
+      if (!modal.classList.contains("hidden")) {
+        loadSources();
+      }
+    }
+
+    async function loadSources() {
+      sourcesList.innerHTML =
+        '<li class="text-gray-400 text-center">Cargando fuentes...</li>';
+      const res = await fetch("/api/v1/sources");
+      const data = await res.json();
+
+      sourcesList.innerHTML = "";
+      data.sources.forEach((url) => {
+        sourcesList.innerHTML += `
+                    <li class="flex justify-between items-center bg-gray-900 p-3 rounded-lg border border-gray-700">
+                        <span class="text-sm text-gray-300 truncate mr-4">${url}</span>
+                        <button onclick="deleteSource('${url}')" class="text-red-400 hover:text-red-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </li>
+                `;
+      });
+    }
+
+    async function addSource() {
+      const input = document.getElementById("new-source-url");
+      if (!input.value) return;
+
+      await fetch("/api/v1/sources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: input.value }),
+      });
+      input.value = "";
+      loadSources();
+    }
+
+    async function deleteSource(url) {
+      await fetch("/api/v1/sources", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url }),
+      });
+      loadSources();
+    }
+  </script>
   <body
     class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center py-12"
   >
     <div class="max-w-2xl w-full px-6">
-      <div class="text-center mb-10">
+      <div class="text-center mb-10 relative">
+        <button
+          onclick="toggleSettings()"
+          class="absolute right-0 top-0 mt-2 mr-2 text-gray-400 hover:text-white transition"
+        >
+          <svg
+            class="w-7 h-7"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            ></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            ></path>
+          </svg>
+        </button>
         <h1
           class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2"
         >

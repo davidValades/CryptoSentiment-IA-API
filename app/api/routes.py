@@ -1,5 +1,6 @@
 import logging
 from fastapi import APIRouter, HTTPException, Path
+from pydantic import BaseModel
 from app.services.binance_client import BinanceClient
 from app.services.news_client import NewsClient
 from app.services.fng_client import FNGClient
@@ -15,7 +16,7 @@ router = APIRouter()
     "/analyze/{ticker}", 
     response_model=SentimentResponse,
     summary="Analiza el sentimiento de una criptomoneda",
-    description="Ingiere datos en tiempo real de Binance y CryptoPanic, y utiliza Gemini AI para emitir un veredicto de mercado."
+    description="Ingiere datos en tiempo real de Binance y fuentes RSS, y utiliza Gemini AI para emitir un veredicto de mercado."
 )
 async def analyze_crypto_sentiment(
     ticker: str = Path(..., title="Símbolo del Ticker", example="BTC", min_length=2, max_length=10)
@@ -26,18 +27,15 @@ async def analyze_crypto_sentiment(
     ticker_upper = ticker.upper()
     
     try:
-        # 1. Ingesta de Datos (Podríamos usar asyncio.gather para hacerlas en paralelo y ganar milisegundos, 
-        # pero secuencial es más seguro para debuggear en este MVP 1.0)
         logger.info(f"Obteniendo datos de Binance para {ticker_upper}...")
-        binance_data = await BinanceClient.get_24h_ticker(f"{ticker_upper}USDT")
+        # El cliente ya le añade el "USDT" por dentro, le pasamos solo el ticker
+        binance_data = await BinanceClient.get_24h_ticker(ticker_upper)
         
         logger.info(f"Obteniendo noticias RSS para {ticker_upper}...")
         headlines = await NewsClient.get_latest_headlines(currency=ticker_upper, limit=15)
         
         logger.info(f"Obteniendo datos del Fear & Greed Index para {ticker_upper}...")
         fng_data = await FNGClient.get_sentiment()
-
-        headlines = await NewsClient.get_latest_headlines(currency=ticker_upper, limit=15)
         
         if not headlines:
             logger.warning(f"No se encontraron noticias recientes para {ticker_upper}.")
@@ -56,8 +54,26 @@ async def analyze_crypto_sentiment(
 
     except Exception as e:
         logger.error(f"Error en el flujo de análisis para {ticker_upper}: {str(e)}")
-        # Envolvemos cualquier excepción interna en un error 500 estándar de FastAPI
         raise HTTPException(
             status_code=500, 
             detail=f"Error interno procesando el oráculo para {ticker_upper}: {str(e)}"
         )
+
+# RUTAS DEL MODAL DE CONFIGURACIÓN
+
+class SourceItem(BaseModel):
+    url: str
+
+@router.get("/sources", summary="Obtiene la lista de canales RSS activos")
+async def get_rss_sources():
+    return {"sources": NewsClient.get_sources()}
+
+@router.post("/sources", summary="Añade un nuevo canal RSS")
+async def add_rss_source(source: SourceItem):
+    actualizadas = NewsClient.add_source(source.url)
+    return {"message": "Fuente añadida", "sources": actualizadas}
+
+@router.delete("/sources", summary="Elimina un canal RSS")
+async def remove_rss_source(source: SourceItem):
+    actualizadas = NewsClient.remove_source(source.url)
+    return {"message": "Fuente eliminada", "sources": actualizadas}
