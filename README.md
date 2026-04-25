@@ -20,7 +20,7 @@ API RESTful que actúa como un **Oráculo de Mercado**. Combina datos cuantitati
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/davidValades/CryptoSentiment-IA-API.git](https://github.com/davidValades/CryptoSentiment-IA-API.git)
+   git clone https://github.com/davidValades/CryptoSentiment-IA-API.git
    cd CryptoSentiment-IA-API
    ```
 2. **Crear entorno virtual:**
