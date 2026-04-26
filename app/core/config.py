@@ -6,9 +6,11 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Solo dejamos Gemini
+    # Las hacemos opcionales para que Docker no explote si no existen
     GEMINI_API_KEY: Optional[str] = None
-    GEMINI_MODEL: str = "gemini-3-pro-preview"
+    CRYPTOPANIC_API_KEY: Optional[str] = None
+    
+    GEMINI_MODEL: str = "gemini-3.1-pro-preview" # Actualizado a tu versión
     
     model_config = SettingsConfigDict(
         env_file=".env", 
