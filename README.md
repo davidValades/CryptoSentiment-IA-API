@@ -40,6 +40,7 @@ Hemos diseñado el sistema para que tenga un arranque **"Zero Config"**. No nece
    docker-compose up --build -d
    ```
 3. **Configuración:**
+
    Abre tu navegador en `http://localhost:8000/`. El asistente de bienvenida automático te pedirá que introduzcas tu API Key y selecciones tu modelo preferido para empezar a operar.
 
 Nota: La base de datos SQLite y las configuraciones RSS persisten gracias a los volúmenes de Docker. No perderás tus datos aunque reinicies el contenedor.
