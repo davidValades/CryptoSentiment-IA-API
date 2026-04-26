@@ -8,6 +8,7 @@ from app.services.fng_client import FNGClient
 from app.services.ai_agent import SentimentAgent
 from app.models.sentiment import SentimentResponse
 from app.services.db_client import DatabaseClient
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +22,9 @@ router = APIRouter()
     description="Ingiere datos en tiempo real de Binance y fuentes RSS, y utiliza IA para emitir un veredicto de mercado."
 )
 async def analyze_crypto_sentiment(
-    ticker: str = Path(..., title="Símbolo del Ticker", example="BTC", min_length=2, max_length=10),
-    # ---> AQUÍ ESTÁ LA MAGIA QUE FALTABA <---
+    ticker: str = Path(..., title="Símbolo del Ticker", examples=["BTC"], min_length=2, max_length=10),
     x_gemini_key: Optional[str] = Header(None, description="API Key provista por el cliente"),
-    x_gemini_model: str = Header("gemini-3.1-pro-preview", description="Modelo provisto por el cliente")
-):
+    x_gemini_model: str = Header(settings.GEMINI_MODEL, description="Modelo provisto por el cliente")):
     """
     Endpoint principal para obtener el análisis de sentimiento.
     """

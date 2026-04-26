@@ -17,7 +17,7 @@ class SentimentAgent:
         fng_data: dict,
         previous_score: int = None,
         api_key: str = None,
-        model_name: str = "gemini-3-pro-preview"
+        model_name: str = settings.GEMINI_MODEL
     ) -> SentimentResponse:
         
         # 1. Instanciar el cliente "Al Vuelo" con la clave recibida o la de defecto
