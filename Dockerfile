@@ -1,14 +1,14 @@
-# 1. Usamos una imagen de Python ligera y oficial
+
 FROM python:3.12-slim
 
-# 2. Variables de entorno para que Python no genere basura y los logs se vean en tiempo real
+# 2. Variables de entorno 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # 3. Carpeta de trabajo dentro del contenedor
 WORKDIR /app
 
-# 4. Instalamos librerías del sistema necesarias para SQLite si fuera necesario
+# 4. Instalamos librerías necesarias para compilar algunas dependencias 
 RUN apt-get update && apt-get install -y --no-install-recommends gcc python3-dev && rm -rf /var/lib/apt/lists/*
 
 # 5. Copiamos el archivo de requerimientos e instalamos todo
