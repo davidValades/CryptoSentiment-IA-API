@@ -31,10 +31,12 @@ La forma más rápida y segura de ejecutar el Oráculo es utilizando Docker. Est
 ### Pasos:
 
 1. **Clonar el repositorio:**
+
    ```bash
    git clone [https://github.com/davidValades/CryptoSentiment-IA-API.git](https://github.com/davidValades/CryptoSentiment-IA-API.git)
    cd CryptoSentiment-IA-API
    ```
+
 2. **Configurar variables de entorno:**
    Crea un archivo llamado `.env` en la raíz del proyecto y añade tu clave de Google AI Studio (y opcionalmente el modelo por defecto):
 
@@ -67,31 +69,22 @@ Si prefieres no usar Docker y ejecutarlo directamente en tu máquina:
 
 1. Clonar el repositorio:
 
-   Bash```
+   ```bash
    git clone [https://github.com/davidValades/CryptoSentiment-IA-API.git](https://github.com/davidValades/CryptoSentiment-IA-API.git)
    cd CryptoSentiment-IA-API
-
-   ```
-
    ```
 
 2. Crear entorno virtual:
 
-   Bash```
+   ```bash
    python -m venv venv
    source venv/bin/activate # En Windows: venv\Scripts\activate
-
-   ```
-
    ```
 
 3. Instalar dependencias:
 
-   Bash```
+   ```bash
    pip install -r requirements.txt
-
-   ```
-
    ```
 
 4. Configurar variables de entorno:
@@ -100,12 +93,11 @@ Si prefieres no usar Docker y ejecutarlo directamente en tu máquina:
 
 5. Iniciar el servidor:
 
-   Bash```
+   ```bash
    uvicorn main:app --reload
+   ```
 
-   ```
    Accede en:`http://127.0.0.1:8000/`
-   ```
 
 ---
 
