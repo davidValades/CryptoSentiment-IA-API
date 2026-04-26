@@ -5,43 +5,14 @@ class ReferenceItem(BaseModel):
     title: str
     url: str
 
-class SentimentResponse(BaseModel):
-    ticker: str = Field(
-        ..., 
-        description="Símbolo de la criptomoneda analizada (ej. BTC)"
-    )
-    score: int = Field(
-        ..., 
-        ge=0, 
-        le=100, 
-        description="Puntuación de sentimiento: 0 (Miedo Extremo/Bearish) a 100 (Avaricia Extrema/Bullish)"
-    )
-    sentiment: Literal["Bullish", "Bearish", "Neutral"] = Field(
-        ..., 
-        description="Clasificación categórica del sentimiento del mercado"
-    )
-    summary: str = Field(
-        ..., 
-        description="Resumen estricto de 3 líneas justificando el análisis basado en precio, volumen y noticias"
-    )
-    references: List[ReferenceItem] = Field(
-        default=[], 
-        description="Noticias utilizadas como contexto con sus respectivos enlaces"
-    )
-    history: List[int] = Field(
-        default=[], 
-        description="Historial de scores de los últimos 5 análisis")
+# 1. Definimos el formato de la respuesta que queremos de la IA
+class AIAnalysis(BaseModel):
+    ticker: str = Field(..., description="Símbolo de la criptomoneda analizada")
+    score: int = Field(..., ge=0, le=100)
+    sentiment: Literal["Bullish", "Bearish", "Neutral"]
+    summary: str = Field(..., description="Resumen estricto de 3 líneas")
 
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "ticker": "BTC",
-                "score": 82,
-                "sentiment": "Bullish",
-                "summary": "1. El precio ha roto resistencias clave con un aumento del 15% en el volumen de 24h.\n2. Los titulares en CryptoPanic muestran una fuerte adopción institucional reciente.\n3. La confluencia de métricas on-chain indica un claro momentum alcista.",
-                "references": [
-                    {"title": "Bitcoin rompe la barrera de los 80K", "url": "https://cointelegraph.com/..."}
-                ]
-            }
-        }
-    }
+# 2. Lo enviamos al frontend con referencias y nuestra línea maestra
+class SentimentResponse(AIAnalysis):
+    references: List[ReferenceItem] = Field(default=[])
+    history: List[int] = Field(default=[])

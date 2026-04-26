@@ -1,5 +1,5 @@
 import httpx
-import xml.etree.ElementTree as ET
+import feedparser
 import asyncio
 import logging
 import json
@@ -59,25 +59,29 @@ class NewsClient:
 
     @classmethod
     async def fetch_one_source(cls, url: str) -> list[dict]:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
-                headers = {"User-Agent": "Mozilla/5.0"}
-                response = await client.get(url, headers=headers, timeout=8.0)
-                root = ET.fromstring(response.text)
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.5"
+                }
+                response = await client.get(url, headers=headers, timeout=10.0)
+                response.raise_for_status() # Lanza error si la web devuelve 403 o 404
+                
+                # feedparser es tolerante a fallos y lee XML sucio sin quejarse
+                feed = feedparser.parse(response.text)
                 
                 news_items = []
-                for item in root.findall('./channel/item'):
-                    title = item.find('title')
-                    link = item.find('link')
-                    # Extraemos título y url para nuestra trazabilidad
-                    if title is not None and title.text and link is not None and link.text:
+                for entry in feed.entries:
+                    if hasattr(entry, 'title') and hasattr(entry, 'link'):
                         news_items.append({
-                            "title": title.text.strip(),
-                            "url": link.text.strip()
+                            "title": entry.title,
+                            "url": entry.link
                         })
                 return news_items
             except Exception as e:
-                logger.warning(f"Error consultando fuente {url}: {e}")
+                logger.warning(f"Fuente ignorada ({url}): {e}")
                 return []
 
     @classmethod
@@ -87,10 +91,8 @@ class NewsClient:
         tasks = [cls.fetch_one_source(url) for url in active_sources]
         results = await asyncio.gather(*tasks)
         
-        # Aplanamos la lista de diccionarios
         all_news = [item for source_list in results for item in source_list]
         currency_upper = currency.upper()
         
-        # Filtramos buscando el ticker dentro de la clave 'title'
         filtered = [item for item in all_news if currency_upper in item["title"].upper()][:limit]
         return filtered

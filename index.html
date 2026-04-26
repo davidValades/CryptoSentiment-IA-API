@@ -612,6 +612,19 @@
             btn.classList.remove("opacity-50");
           }
         });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const userApiKey = localStorage.getItem("gemini_api_key");
+        if (!userApiKey) {
+          toggleSettings();
+          setTimeout(() => {
+            showNotification(
+              "👋 ¡Bienvenido al Oráculo! Configura tu IA para empezar.",
+              "success",
+            );
+          }, 500);
+        }
+      });
     </script>
   </body>
 </html>
