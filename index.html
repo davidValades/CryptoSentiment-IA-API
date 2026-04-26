@@ -84,12 +84,12 @@
             <div class="space-y-3">
               <div>
                 <label class="block text-xs text-gray-400 mb-1"
-                  >Gemini API Key (Opcional)</label
+                  >API Key (Opcional)</label
                 >
                 <input
                   type="password"
                   id="custom-api-key"
-                  placeholder="AIzaSy..."
+                  placeholder="Pega tu API Key..."
                   class="w-full bg-gray-900 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 outline-none"
                 />
                 <p class="text-[10px] text-gray-500 mt-1">
@@ -98,7 +98,7 @@
               </div>
               <div>
                 <label class="block text-xs text-gray-400 mb-1"
-                  >Modelo de IA</label
+                  >Modelo de IA (Google, OpenAI, Anthropic)</label
                 >
                 <input
                   type="text"
@@ -110,13 +110,16 @@
                 <datalist id="model-options">
                   <option value="gemini-3.1-pro-preview"></option>
                   <option value="gemini-2.0-flash"></option>
+                  <option value="gpt-4o"></option>
+                  <option value="gpt-3.5-turbo"></option>
+                  <option value="claude-3-opus-20240229"></option>
                 </datalist>
               </div>
               <button
                 onclick="saveAISettings()"
                 class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg transition-colors text-sm"
               >
-                Guardar Configuración IA
+                Guardar Configuración
               </button>
             </div>
           </div>
@@ -312,7 +315,7 @@
                 <span
                   class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"
                 ></span>
-                Análisis de Gemini AI
+                Análisis de IA
               </h3>
               <ul
                 id="res-summary"
@@ -359,12 +362,11 @@
 
     <script>
       // ==========================================
-      // FUNCIONES GLOBALES (FUERA DE EVENTOS)
+      // FUNCIONES GLOBALES
       // ==========================================
       const modal = document.getElementById("settings-modal");
       const sourcesList = document.getElementById("sources-list");
 
-      // Notificaciones (Toasts)
       function showNotification(message, type = "success") {
         const container = document.getElementById("toast-container");
         const toast = document.createElement("div");
@@ -384,7 +386,6 @@
         }, 3000);
       }
 
-      // Configuración de IA (Local Storage)
       function loadAISettings() {
         document.getElementById("custom-api-key").value =
           localStorage.getItem("gemini_api_key") || "";
@@ -400,7 +401,6 @@
         showNotification("Configuración de IA guardada");
       }
 
-      // Modal de Settings
       function toggleSettings() {
         modal.classList.toggle("hidden");
         if (!modal.classList.contains("hidden")) {
@@ -409,7 +409,6 @@
         }
       }
 
-      // Fuentes RSS
       async function loadSources() {
         try {
           const res = await fetch("/api/v1/sources");
@@ -447,24 +446,24 @@
       }
 
       // ==========================================
-      // EVENTOS AL CARGAR LA PÁGINA
+      // ONBOARDING AUTOMÁTICO (ROBUSTO)
       // ==========================================
-
-      // 1. Onboarding Automático
-      document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
         const userApiKey = localStorage.getItem("gemini_api_key");
         if (!userApiKey) {
           toggleSettings();
           setTimeout(() => {
             showNotification(
-              "👋 ¡Bienvenido al Oráculo! Configura tu IA para empezar.",
+              "👋 ¡Bienvenido! Configura tu IA para empezar.",
               "success",
             );
-          }, 500);
+          }, 300);
         }
-      });
+      }, 200);
 
-      // 2. Lógica de Análisis
+      // ==========================================
+      // LÓGICA DE ANÁLISIS
+      // ==========================================
       const loadingTexts = [
         "Conectando con Binance...",
         "Calculando RSI...",
@@ -489,7 +488,6 @@
           const errorCard = document.getElementById("error-card");
           const tvContainer = document.getElementById("tv-container");
 
-          // Preparar UI para cargar
           btn.disabled = true;
           btn.classList.add("opacity-50");
           resultCard.classList.add("hidden");
@@ -504,10 +502,9 @@
           document.getElementById("loading-text").textContent = loadingTexts[0];
           const textInterval = setInterval(() => {
             textIndex++;
-            if (textIndex < loadingTexts.length) {
+            if (textIndex < loadingTexts.length)
               document.getElementById("loading-text").textContent =
                 loadingTexts[textIndex];
-            }
           }, 1200);
 
           try {
@@ -527,7 +524,6 @@
               throw new Error(data.detail || "Error en el servidor");
             clearInterval(textInterval);
 
-            // Renderizar UI
             document.getElementById("res-ticker").textContent = data.ticker;
 
             let currentScore = 0;
@@ -576,7 +572,6 @@
               100,
             );
 
-            // Resumen
             const sList = document.getElementById("res-summary");
             sList.innerHTML = "";
             data.summary
@@ -586,7 +581,6 @@
                 sList.innerHTML += `<li class="flex items-start gap-3 w-full min-w-0"><span class="text-blue-500 mt-[2px] flex-shrink-0 text-sm">▶</span><p class="text-gray-300 text-sm md:text-base leading-relaxed break-words flex-1">${line.replace(/^(?:-\s*|\d+\.\s*)/, "").trim()}</p></li>`;
               });
 
-            // Historial
             const hCont = document.getElementById("score-history");
             if (data.history?.length > 0) {
               document.getElementById("history-dots").innerHTML = data.history
@@ -598,7 +592,6 @@
               hCont.classList.remove("hidden");
             }
 
-            // Referencias
             const rDiv = document.getElementById("res-references");
             rDiv.innerHTML = "";
             if (data.references?.length > 0) {
@@ -610,7 +603,6 @@
                 .classList.remove("hidden");
             }
 
-            // TradingView
             tvContainer.classList.remove("hidden");
             new TradingView.widget({
               autosize: true,
