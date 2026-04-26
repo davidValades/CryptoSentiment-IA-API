@@ -20,7 +20,7 @@ class SentimentAgent:
         rsi_value: float,       
         headlines: list[dict], 
         fng_data: dict,
-        previous_score: int = None,
+        trade_history_context: str = "", 
         api_key: str = None,
         model_name: str = settings.GEMINI_MODEL
     ) -> SentimentResponse:
@@ -40,28 +40,35 @@ class SentimentAgent:
         
         linea_maestra = f"El activo cotiza a ${price_str} USD ({change_str}) con un volumen de 24h de ${vol_str} USD."
 
-        # 2. INSTRUCCIONES ESTRICTAS (Adaptadas para Multi-Modelo)
+        # 2. INSTRUCCIONES ESTRICTAS (Con Loop de Autocrítica y Señal de Trading)
         system_instruction = """
-        Eres el Analista Cuantitativo Jefe de un fondo de cobertura (Hedge Fund) en Wall Street.
+        Eres el Analista Cuantitativo Jefe y un Agente de Trading Reflexivo de un Hedge Fund.
         
         REGLAS ESTRICTAS:
         1. RESPONDE ÚNICA Y ESTRICTAMENTE EN ESPAÑOL.
-        2. Tu 'summary' DEBE tener EXACTAMENTE 3 líneas (separadas por \n) con un nivel de profundidad técnico extremo.
-        3. NO menciones el precio, porcentaje de cambio o volumen actual.
+        2. Tu 'summary' DEBE tener EXACTAMENTE 3 líneas (separadas por \n).
+        3. NO menciones el precio, porcentaje de cambio o volumen actual en el summary.
         4. Analiza la divergencia entre el RSI técnico, el sentimiento Macro y las noticias.
-        5. Sé directo, frío y calculador.
-        6. IMPORTANTE: DEBES RESPONDER ÚNICAMENTE CON UN JSON VÁLIDO QUE CUMPLA ESTE ESQUEMA:
+        5. IMPORTANTE - AUTOCRÍTICA: Revisa tu memoria histórica. Si has fallado recientemente, ajusta tu agresividad, sé más cauto y justifica tu cambio de enfoque.
+        6. DEBES RESPONDER ÚNICAMENTE CON UN JSON VÁLIDO QUE CUMPLA ESTE ESQUEMA:
         {
           "ticker": "SIMBOLO",
           "score": 85,
           "sentiment": "Bullish",
+          "action_signal": "BUY",
           "summary": "Línea 1.\\nLínea 2.\\nLínea 3."
         }
+        Los valores válidos para 'action_signal' son: "BUY", "SELL", "HOLD".
         NO incluyas texto fuera del JSON, ni bloques de código markdown.
         """
 
         formatted_headlines = "\n".join([f"- {h['title']}" for h in headlines])
-        memory_context = f"- Score Anterior (Ayer): {previous_score}/100. Analiza si la tendencia mejora o empeora." if previous_score else "- No hay datos previos de ayer."
+        
+        # 3. CONSTRUCCIÓN DEL CONTEXTO DINÁMICO
+        if trade_history_context.strip():
+            memory_section = f"[MEMORIA DE RENDIMIENTO PASADO]\n{trade_history_context}\nUsa esta experiencia empírica para no repetir errores. Calibra tus pesos de decisión actuales basándote en estos resultados reales."
+        else:
+            memory_section = "[MEMORIA DE RENDIMIENTO PASADO]\nNo hay historial operativo previo. Inicia con tu estrategia base."
 
         user_prompt = f"""
         Analiza el activo: {ticker.upper()}
@@ -71,8 +78,7 @@ class SentimentAgent:
         - Fear & Greed Index Global: {fng_data.get('value', '50')}/100
         - RSI (14 días) del activo: {rsi_value}
         
-        MEMORIA TEMPORAL:
-        {memory_context}
+        {memory_section}
         
         NARRATIVA INSTITUCIONAL:
         {formatted_headlines}
@@ -80,13 +86,9 @@ class SentimentAgent:
 
         try:
             raw_json_response = ""
-            
-            # Asegurarnos de que el modelo esté en minúsculas para evaluarlo
             model_lower = model_name.lower().strip()
 
-            # EL ENRUTADOR DE INTELIGENCIA ARTIFICIAL
-            
-            # --- RUTA 1: OPENAI (ChatGPT) ---
+            # --- RUTA 1: OPENAI ---
             if model_lower.startswith("gpt"):
                 logger.info(f"Enrutando hacia OpenAI ({model_name})...")
                 client_oai = openai.AsyncOpenAI(api_key=api_key)
@@ -101,7 +103,7 @@ class SentimentAgent:
                 )
                 raw_json_response = response.choices[0].message.content
 
-            # --- RUTA 2: ANTHROPIC (Claude) ---
+            # --- RUTA 2: ANTHROPIC ---
             elif model_lower.startswith("claude"):
                 logger.info(f"Enrutando hacia Anthropic ({model_name})...")
                 client_anth = anthropic.AsyncAnthropic(api_key=api_key)
@@ -116,12 +118,12 @@ class SentimentAgent:
                 )
                 raw_json_response = response.content[0].text
 
-            # --- RUTA 3: GOOGLE GEMINI (Default) ---
+            # --- RUTA 3: GOOGLE GEMINI ---
             else:
                 logger.info(f"Enrutando hacia Google Gemini ({model_name})...")
                 final_api_key = api_key if api_key else settings.GEMINI_API_KEY
                 if not final_api_key:
-                    raise ValueError("No se proporcionó API Key para Gemini. Configúrala en el panel ⚙️.")
+                    raise ValueError("No se proporcionó API Key para Gemini.")
                     
                 client_gemini = genai.Client(api_key=final_api_key)
                 response = await client_gemini.aio.models.generate_content(
@@ -131,30 +133,28 @@ class SentimentAgent:
                         system_instruction=system_instruction,
                         temperature=0.4, 
                         response_mime_type="application/json",
-                        # ---> ¡CAMBIO CLAVE AQUÍ! Usamos el modelo plano <---
                         response_schema=AIAnalysis, 
                     ),
                 )
                 raw_json_response = response.text
 
-            # ==========================================
-            # PROCESAMIENTO COMÚN (El Interceptor)
-            # ==========================================
             
             raw_json_response = raw_json_response.replace("```json", "").replace("```", "").strip()
 
-            # Validamos con el modelo PLANO
+            # Validamos con el modelo PLANO (Asegúrate de haber añadido action_signal a AIAnalysis en sentiment.py)
             resultado_ia_plano = AIAnalysis.model_validate_json(raw_json_response)
             
             # Formateamos el texto
             lineas_ia = [line for line in resultado_ia_plano.summary.split('\n') if line.strip()]
             resumen_final = linea_maestra + "\n" + "\n".join(lineas_ia[:2])
             
-            # ---> ¡NUEVO! Construimos la respuesta completa para el Frontend <---
+            # Construimos la respuesta completa
             resultado_final = SentimentResponse(
                 ticker=resultado_ia_plano.ticker,
                 score=resultado_ia_plano.score,
                 sentiment=resultado_ia_plano.sentiment,
+                action_signal=getattr(resultado_ia_plano, 'action_signal', 'HOLD'), # Nuevo campo
+                price_at_analysis=price_raw, # Nuevo campo
                 summary=resumen_final,
                 references=[ReferenceItem(title=h['title'], url=h['url']) for h in headlines]
             )
@@ -163,4 +163,4 @@ class SentimentAgent:
 
         except Exception as e:
             logger.error(f"Error crítico en la IA ({model_name}) para {ticker}: {e}")
-            raise Exception(f"Fallo al procesar el modelo '{model_name}': Verifica que tu API Key sea correcta. Detalle: {str(e)}")
+            raise Exception(f"Fallo al procesar el modelo '{model_name}'. Detalle: {str(e)}")

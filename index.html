@@ -50,6 +50,21 @@
   <body
     class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center py-6 md:py-12 relative"
   >
+    <div class="w-full max-w-7xl px-4 md:px-6 flex justify-end mb-4">
+      <div
+        class="bg-gray-800 px-5 py-2 rounded-full border border-gray-700 flex items-center gap-3 shadow-lg"
+      >
+        <span class="text-gray-400 text-xs font-bold uppercase tracking-widest"
+          >Bot Balance:</span
+        >
+        <span
+          id="wallet-balance"
+          class="text-emerald-400 font-mono font-bold text-lg"
+          >$10,000.00</span
+        >
+      </div>
+    </div>
+
     <div
       id="toast-container"
       class="fixed top-5 right-5 z-[100] flex flex-col gap-3"
@@ -150,219 +165,258 @@
       </div>
     </div>
 
-    <div class="max-w-4xl w-full px-4 md:px-6">
-      <div class="text-center mb-10 relative">
-        <button
-          onclick="toggleSettings()"
-          class="absolute right-0 top-0 mt-2 text-gray-400 hover:text-white transition"
-        >
-          <svg
-            class="w-7 h-7"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-            ></path>
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            ></path>
-          </svg>
-        </button>
-        <h1
-          class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2 mt-8 md:mt-0"
-        >
-          🔮 CryptoSentiment Oracle
-        </h1>
-        <p class="text-gray-400 text-sm md:text-base">
-          Inteligencia Artificial para mercados volátiles
-        </p>
-      </div>
-
-      <div
-        class="bg-gray-800 p-5 md:p-6 rounded-2xl shadow-lg border border-gray-700 mb-8"
-      >
-        <form id="analyze-form" class="flex flex-col md:flex-row gap-4">
-          <input
-            type="text"
-            id="ticker-input"
-            placeholder="Ej. BTC, ETH, SOL"
-            required
-            autocomplete="off"
-            class="flex-1 bg-gray-900 text-white px-5 py-3 rounded-xl border border-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 uppercase placeholder-gray-500 transition-colors"
-          />
+    <div
+      class="max-w-7xl w-full px-4 md:px-6 grid grid-cols-1 lg:grid-cols-3 gap-8"
+    >
+      <div class="lg:col-span-2">
+        <div class="text-center mb-10 relative">
           <button
-            type="submit"
-            id="submit-btn"
-            class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/30 whitespace-nowrap"
+            onclick="toggleSettings()"
+            class="absolute right-0 top-0 mt-2 text-gray-400 hover:text-white transition"
           >
-            Analizar
+            <svg
+              class="w-7 h-7"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+            </svg>
           </button>
-        </form>
-      </div>
-
-      <div
-        id="loading-state"
-        class="hidden bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center shadow-xl mb-8"
-      >
-        <div class="h-2 w-full bg-gray-700 rounded-full overflow-hidden mb-6">
-          <div class="h-full loading-bar w-full"></div>
+          <h1
+            class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2 mt-8 md:mt-0"
+          >
+            🔮 CryptoSentiment Oracle
+          </h1>
+          <p class="text-gray-400 text-sm md:text-base">
+            Inteligencia Artificial para mercados volátiles
+          </p>
         </div>
-        <p
-          id="loading-text"
-          class="text-blue-400 font-medium text-lg animate-pulse"
-        >
-          Iniciando protocolo...
-        </p>
-      </div>
 
-      <div
-        id="result-card"
-        class="hidden bg-gray-800 rounded-2xl shadow-xl border border-gray-700 overflow-hidden mb-8"
-      >
         <div
-          class="p-5 md:p-6 border-b border-gray-700 flex justify-between items-center bg-gray-800/80"
+          class="bg-gray-800 p-5 md:p-6 rounded-2xl shadow-lg border border-gray-700 mb-8"
         >
-          <div class="flex items-center gap-2 md:gap-3">
-            <h2
-              class="text-2xl md:text-3xl font-black tracking-tight"
-              id="res-ticker"
+          <form id="analyze-form" class="flex flex-col md:flex-row gap-4">
+            <input
+              type="text"
+              id="ticker-input"
+              placeholder="Ej. BTC, ETH, SOL"
+              required
+              autocomplete="off"
+              class="flex-1 bg-gray-900 text-white px-5 py-3 rounded-xl border border-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 uppercase placeholder-gray-500 transition-colors"
+            />
+            <button
+              type="submit"
+              id="submit-btn"
+              class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/30 whitespace-nowrap"
             >
-              BTC
-            </h2>
-            <span class="text-gray-500 font-medium text-sm md:text-base"
-              >/ USDT</span
-            >
+              Analizar
+            </button>
+          </form>
+        </div>
+
+        <div
+          id="loading-state"
+          class="hidden bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center shadow-xl mb-8"
+        >
+          <div class="h-2 w-full bg-gray-700 rounded-full overflow-hidden mb-6">
+            <div class="h-full loading-bar w-full"></div>
           </div>
-          <span
-            id="res-badge"
-            class="px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase tracking-widest shadow-inner"
-          ></span>
+          <p
+            id="loading-text"
+            class="text-blue-400 font-medium text-lg animate-pulse"
+          >
+            Iniciando protocolo...
+          </p>
         </div>
 
         <div
-          class="p-5 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 items-start"
+          id="result-card"
+          class="hidden bg-gray-800 rounded-2xl shadow-xl border border-gray-700 overflow-hidden mb-8"
         >
-          <div class="flex flex-col items-center w-full md:w-auto">
-            <div
-              class="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 mx-auto md:mx-0"
-            >
-              <svg
-                class="w-full h-full transform -rotate-90 drop-shadow-lg"
-                viewBox="0 0 36 36"
+          <div
+            class="p-5 md:p-6 border-b border-gray-700 flex justify-between items-center bg-gray-800/80"
+          >
+            <div class="flex items-center gap-2 md:gap-3">
+              <h2
+                class="text-2xl md:text-3xl font-black tracking-tight"
+                id="res-ticker"
               >
-                <path
-                  class="text-gray-700"
-                  stroke-width="3"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <path
-                  id="gauge-fill"
-                  class="circle-transition text-gray-500"
-                  stroke-dasharray="0, 100"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <div
-                class="absolute inset-0 flex flex-col items-center justify-center"
+                BTC
+              </h2>
+              <span class="text-gray-500 font-medium text-sm md:text-base"
+                >/ USDT</span
               >
-                <span
-                  id="res-score"
-                  class="text-4xl md:text-5xl font-black tracking-tighter"
-                  >0</span
-                >
-                <span
-                  class="text-gray-500 text-[10px] md:text-xs font-bold uppercase mt-0 md:mt-1 tracking-widest"
-                  >Score</span
-                >
-              </div>
             </div>
-            <div
-              id="score-history"
-              class="mt-6 bg-gray-900 px-4 py-3 rounded-xl border border-gray-700 text-center w-full md:w-auto hidden"
-            >
+            <div class="flex gap-2">
               <span
-                class="text-[10px] text-gray-500 uppercase tracking-widest block mb-2"
-                >Memoria de Tendencia</span
-              >
-              <div
-                id="history-dots"
-                class="flex items-center justify-center gap-2 text-sm font-bold"
-              ></div>
+                id="res-badge"
+                class="px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase tracking-widest shadow-inner"
+              ></span>
+              <span
+                id="res-signal"
+                class="px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest shadow-inner"
+              ></span>
             </div>
           </div>
 
-          <div class="flex-1 min-w-0 flex flex-col gap-6 w-full">
-            <div
-              class="bg-gray-900 rounded-xl p-5 border border-gray-700 w-full shadow-inner flex flex-col"
-            >
-              <h3
-                class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"
+          <div
+            class="p-5 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 items-start"
+          >
+            <div class="flex flex-col items-center w-full md:w-auto">
+              <div
+                class="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 mx-auto md:mx-0"
+              >
+                <svg
+                  class="w-full h-full transform -rotate-90 drop-shadow-lg"
+                  viewBox="0 0 36 36"
+                >
+                  <path
+                    class="text-gray-700"
+                    stroke-width="3"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    id="gauge-fill"
+                    class="circle-transition text-gray-500"
+                    stroke-dasharray="0, 100"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div
+                  class="absolute inset-0 flex flex-col items-center justify-center"
+                >
+                  <span
+                    id="res-score"
+                    class="text-4xl md:text-5xl font-black tracking-tighter"
+                    >0</span
+                  >
+                  <span
+                    class="text-gray-500 text-[10px] md:text-xs font-bold uppercase mt-0 md:mt-1 tracking-widest"
+                    >Score</span
+                  >
+                </div>
+              </div>
+              <div
+                id="score-history"
+                class="mt-6 bg-gray-900 px-4 py-3 rounded-xl border border-gray-700 text-center w-full md:w-auto hidden"
               >
                 <span
-                  class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"
-                ></span>
-                Análisis de IA
-              </h3>
-              <ul
-                id="res-summary"
-                class="space-y-4 text-gray-300 mb-6 list-none"
-              ></ul>
-              <div
-                id="references-container"
-                class="mt-auto pt-5 border-t border-gray-800 hidden"
-              >
-                <h4
-                  class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"
+                  class="text-[10px] text-gray-500 uppercase tracking-widest block mb-2"
+                  >Memoria de Tendencia</span
                 >
-                  🔗 Fuentes Analizadas
-                </h4>
                 <div
-                  id="res-references"
-                  class="flex flex-col gap-2 max-h-40 overflow-y-auto custom-scroll pr-3"
+                  id="history-dots"
+                  class="flex items-center justify-center gap-2 text-sm font-bold"
                 ></div>
               </div>
             </div>
 
-            <div
-              id="tv-container"
-              class="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 w-full h-[400px] hidden shadow-inner relative"
-            >
+            <div class="flex-1 min-w-0 flex flex-col gap-6 w-full">
               <div
-                class="absolute top-0 left-0 bg-gray-800 px-3 py-1 rounded-br-lg text-[10px] font-bold text-gray-400 uppercase z-10"
+                class="bg-gray-900 rounded-xl p-5 border border-gray-700 w-full shadow-inner flex flex-col"
               >
-                Gráfico Interactivo
+                <h3
+                  class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"
+                  ></span>
+                  Análisis de IA (<span
+                    id="res-price-at"
+                    class="text-gray-400"
+                  ></span
+                  >)
+                </h3>
+                <ul
+                  id="res-summary"
+                  class="space-y-4 text-gray-300 mb-6 list-none"
+                ></ul>
+                <div
+                  id="references-container"
+                  class="mt-auto pt-5 border-t border-gray-800 hidden"
+                >
+                  <h4
+                    class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"
+                  >
+                    🔗 Fuentes Analizadas
+                  </h4>
+                  <div
+                    id="res-references"
+                    class="flex flex-col gap-2 max-h-40 overflow-y-auto custom-scroll pr-3"
+                  ></div>
+                </div>
               </div>
-              <div id="tradingview_chart" class="w-full h-full"></div>
+
+              <div
+                id="tv-container"
+                class="bg-gray-900 rounded-xl overflow-hidden border border-gray-700 w-full h-[400px] hidden shadow-inner relative"
+              >
+                <div
+                  class="absolute top-0 left-0 bg-gray-800 px-3 py-1 rounded-br-lg text-[10px] font-bold text-gray-400 uppercase z-10"
+                >
+                  Gráfico Interactivo
+                </div>
+                <div id="tradingview_chart" class="w-full h-full"></div>
+              </div>
             </div>
           </div>
         </div>
+
+        <div
+          id="error-card"
+          class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center mb-8"
+        >
+          <p id="error-message" class="text-red-400 font-medium"></p>
+        </div>
       </div>
 
-      <div
-        id="error-card"
-        class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center mb-8"
-      >
-        <p id="error-message" class="text-red-400 font-medium"></p>
+      <div class="lg:col-span-1">
+        <div
+          class="bg-gray-800 rounded-2xl border border-gray-700 p-5 shadow-xl sticky top-6"
+        >
+          <h3
+            class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between border-b border-gray-700 pb-3"
+          >
+            <span class="flex items-center gap-2">
+              <span
+                class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"
+              ></span>
+              Operaciones del Bot
+            </span>
+          </h3>
+          <div
+            id="trades-list"
+            class="space-y-3 max-h-[700px] overflow-y-auto pr-2 custom-scroll"
+          >
+            <p class="text-gray-500 text-sm text-center py-4">
+              Cargando operaciones...
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
       // ==========================================
-      // FUNCIONES GLOBALES
+      // FUNCIONES ORIGINALES (Intactas)
       // ==========================================
       const modal = document.getElementById("settings-modal");
       const sourcesList = document.getElementById("sources-list");
@@ -445,9 +499,6 @@
         showNotification("Fuente eliminada");
       }
 
-      // ==========================================
-      // ONBOARDING AUTOMÁTICO (ROBUSTO)
-      // ==========================================
       setTimeout(() => {
         const userApiKey = localStorage.getItem("gemini_api_key");
         if (!userApiKey) {
@@ -462,7 +513,75 @@
       }, 200);
 
       // ==========================================
-      // LÓGICA DE ANÁLISIS
+      // NUEVO: FUNCIONES DEL WALLET (BOT)
+      // ==========================================
+      async function updateWallet() {
+        try {
+          const res = await fetch("/api/v1/wallet");
+          if (!res.ok) return;
+          const data = await res.json();
+
+          document.getElementById("wallet-balance").textContent =
+            `$${data.balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+          const list = document.getElementById("trades-list");
+          list.innerHTML = "";
+
+          if (data.recent_trades.length === 0) {
+            list.innerHTML =
+              '<p class="text-gray-500 text-sm text-center py-4">No hay operaciones activas.</p>';
+            return;
+          }
+
+          data.recent_trades.forEach((t) => {
+            const isPositive = t.pnl >= 0;
+            const pnlColor = isPositive ? "text-emerald-400" : "text-red-400";
+            const statusColor =
+              t.status === "OPEN"
+                ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                : "bg-gray-700/50 text-gray-400 border-gray-600";
+            const signalBg =
+              t.signal === "BUY"
+                ? "bg-emerald-500/20 text-emerald-400"
+                : t.signal === "SELL"
+                  ? "bg-red-500/20 text-red-400"
+                  : "bg-gray-500/20 text-gray-400";
+
+            list.innerHTML += `
+              <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-700 flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center gap-2">
+                    <span class="font-black text-sm">${t.ticker}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-widest ${signalBg}">${t.signal}</span>
+                  </div>
+                  <span class="text-[10px] px-2 py-0.5 rounded border ${statusColor} font-bold">${t.status}</span>
+                </div>
+                <div class="flex justify-between items-end mt-1">
+                  <div>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Entrada</p>
+                    <p class="text-xs font-mono">$${t.price.toLocaleString("en-US")}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Rendimiento</p>
+                    <p class="text-sm font-mono font-bold ${t.status === "OPEN" ? "text-gray-400" : pnlColor}">
+                      ${t.pnl ? (isPositive ? "+" : "") + (t.pnl * 100).toFixed(2) + "%" : "En proceso"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        } catch (e) {
+          console.error("Error cargando wallet:", e);
+        }
+      }
+
+      // Actualizar la billetera cada 15 segundos
+      setInterval(updateWallet, 15000);
+      updateWallet();
+
+      // ==========================================
+      // LÓGICA DE ANÁLISIS (Actualizada con señales)
       // ==========================================
       const loadingTexts = [
         "Conectando con Binance...",
@@ -525,7 +644,12 @@
             clearInterval(textInterval);
 
             document.getElementById("res-ticker").textContent = data.ticker;
+            if (data.price_at_analysis) {
+              document.getElementById("res-price-at").textContent =
+                `$${data.price_at_analysis.toLocaleString("en-US")}`;
+            }
 
+            // Animación del Score
             let currentScore = 0;
             const scoreInterval = setInterval(() => {
               if (currentScore >= data.score) {
@@ -537,8 +661,13 @@
               }
             }, 15);
 
+            // Diseño Original de los Badges
             const badge = document.getElementById("res-badge");
             badge.textContent = data.sentiment;
+
+            const signalBadge = document.getElementById("res-signal");
+            signalBadge.textContent = data.action_signal || "HOLD";
+
             const gFill = document.getElementById("gauge-fill");
             gFill.classList.remove(
               "text-green-500",
@@ -564,6 +693,18 @@
               gFill.classList.add("text-gray-400");
               document.getElementById("res-score").className =
                 "text-4xl md:text-5xl font-black text-white";
+            }
+
+            // Colores de la señal (NUEVO)
+            if (data.action_signal === "BUY") {
+              signalBadge.className =
+                "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest shadow-inner bg-emerald-500 text-white";
+            } else if (data.action_signal === "SELL") {
+              signalBadge.className =
+                "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest shadow-inner bg-red-500 text-white";
+            } else {
+              signalBadge.className =
+                "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-black uppercase tracking-widest shadow-inner bg-gray-600 text-white";
             }
 
             setTimeout(
@@ -618,6 +759,9 @@
 
             loadingState.classList.add("hidden");
             resultCard.classList.remove("hidden");
+
+            // Refrescar el wallet al terminar el análisis por si la IA abrió una posición nueva
+            updateWallet();
           } catch (error) {
             clearInterval(textInterval);
             loadingState.classList.add("hidden");
