@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     
     # Solo dejamos Gemini
     GEMINI_API_KEY: str
+    GEMINI_MODEL: str = "gemini-3-pro-preview"
     
     model_config = SettingsConfigDict(
         env_file=".env", 

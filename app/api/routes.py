@@ -1,6 +1,7 @@
 import logging
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException, Path, Header
 from pydantic import BaseModel
+from typing import Optional
 from app.services.binance_client import BinanceClient
 from app.services.news_client import NewsClient
 from app.services.fng_client import FNGClient
@@ -17,10 +18,13 @@ router = APIRouter()
     "/analyze/{ticker}", 
     response_model=SentimentResponse,
     summary="Analiza el sentimiento de una criptomoneda",
-    description="Ingiere datos en tiempo real de Binance y fuentes RSS, y utiliza Gemini AI para emitir un veredicto de mercado."
+    description="Ingiere datos en tiempo real de Binance y fuentes RSS, y utiliza IA para emitir un veredicto de mercado."
 )
 async def analyze_crypto_sentiment(
-    ticker: str = Path(..., title="Símbolo del Ticker", example="BTC", min_length=2, max_length=10)
+    ticker: str = Path(..., title="Símbolo del Ticker", example="BTC", min_length=2, max_length=10),
+    # ---> AQUÍ ESTÁ LA MAGIA QUE FALTABA <---
+    x_gemini_key: Optional[str] = Header(None, description="API Key provista por el cliente"),
+    x_gemini_model: str = Header("gemini-3.1-pro-preview", description="Modelo provisto por el cliente")
 ):
     """
     Endpoint principal para obtener el análisis de sentimiento.
@@ -42,25 +46,25 @@ async def analyze_crypto_sentiment(
         
         logger.info(f"Buscando historial para {ticker_upper}...")
         previous_score = DatabaseClient.get_latest_score(ticker_upper)
-
+        
         if not headlines:
             logger.warning(f"No se encontraron noticias recientes para {ticker_upper}.")
             
         # 2. Procesamiento con IA
-        logger.info(f"Enviando contexto a Gemini para análisis...")
+        logger.info(f"Enviando contexto a la IA ({x_gemini_model}) para análisis...")
         analysis_result = await SentimentAgent.analyze_market_data(
             ticker=ticker_upper,
             binance_data=binance_data,
             rsi_value=rsi_value,
             headlines=headlines,
             fng_data=fng_data,
-            previous_score=previous_score
+            previous_score=previous_score,
+            api_key=x_gemini_key,
+            model_name=x_gemini_model
         )
 
-        logger.info(f"Cargando historial visual para {ticker_upper}...")
-        analysis_result.history = DatabaseClient.get_history(ticker_upper, limit=5)
-        
         DatabaseClient.save_score(ticker_upper, analysis_result.score)
+        analysis_result.history = DatabaseClient.get_history(ticker_upper, limit=5)
 
         # 3. Retorno de la respuesta validada
         return analysis_result
@@ -72,9 +76,7 @@ async def analyze_crypto_sentiment(
             detail=f"Error interno procesando el oráculo para {ticker_upper}: {str(e)}"
         )
 
-# ==========================================
 # RUTAS DEL MODAL DE CONFIGURACIÓN
-# ==========================================
 
 class SourceItem(BaseModel):
     url: str

@@ -55,38 +55,98 @@
       class="bg-gray-800 p-6 rounded-2xl border border-gray-600 w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]"
     >
       <div class="flex justify-between items-center mb-6 flex-shrink-0">
-        <h2 class="text-xl font-bold text-white">⚙️ Fuentes RSS</h2>
+        <h2 class="text-xl font-bold text-white">
+          ⚙️ Configuración del Oráculo
+        </h2>
         <button
           onclick="toggleSettings()"
-          class="text-gray-400 hover:text-white font-bold text-2xl"
+          class="text-gray-400 hover:text-white font-bold text-2xl leading-none"
         >
           &times;
         </button>
       </div>
-      <ul
-        id="sources-list"
-        class="space-y-3 mb-6 overflow-y-auto custom-scroll flex-1 pr-2"
-      ></ul>
-      <div class="flex gap-2 flex-shrink-0">
-        <input
-          type="url"
-          id="new-source-url"
-          placeholder="https://ejemplo.com/rss"
-          class="flex-1 bg-gray-900 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
-        />
-        <button
-          onclick="addSource()"
-          class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg font-bold text-white transition"
-        >
-          Añadir
-        </button>
+
+      <div class="overflow-y-auto custom-scroll pr-2 space-y-6">
+        <div>
+          <h3
+            class="text-sm font-bold text-blue-400 uppercase tracking-widest mb-3 border-b border-gray-700 pb-2"
+          >
+            🧠 Motor de IA
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs text-gray-400 mb-1"
+                >Gemini API Key (Opcional)</label
+              >
+              <input
+                type="password"
+                id="custom-api-key"
+                placeholder="AIzaSy..."
+                class="w-full bg-gray-900 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 outline-none"
+              />
+              <p class="text-[10px] text-gray-500 mt-1">
+                Si se deja en blanco, usará la clave del servidor.
+              </p>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1"
+                >Modelo de IA</label
+              >
+              <input
+                type="text"
+                id="custom-model"
+                list="model-options"
+                placeholder="ej. gemini-3.1-pro-preview"
+                class="w-full bg-gray-900 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 outline-none"
+              />
+              <datalist id="model-options">
+                <option value="gemini-3.1-pro-preview"></option>
+                <option value="gemini-2.0-flash"></option>
+              </datalist>
+            </div>
+            <button
+              onclick="saveAISettings()"
+              class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg transition-colors text-sm"
+            >
+              Guardar Configuración IA
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <h3
+            class="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-3 border-b border-gray-700 pb-2"
+          >
+            📡 Fuentes de Datos (RSS)
+          </h3>
+          <ul id="sources-list" class="space-y-2 mb-4"></ul>
+          <div class="flex gap-2">
+            <input
+              type="url"
+              id="new-source-url"
+              placeholder="https://ejemplo.com/rss"
+              class="flex-1 bg-gray-900 text-white px-3 py-2 text-sm rounded-lg border border-gray-600 focus:border-emerald-500 outline-none"
+            />
+            <button
+              onclick="addSource()"
+              class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg font-bold text-white transition text-sm"
+            >
+              Añadir
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <body
-    class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center py-6 md:py-12"
+    class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center py-6 md:py-12 relative"
   >
+    <div
+      id="toast-container"
+      class="fixed top-5 right-5 z-[100] flex flex-col gap-3"
+    ></div>
+
     <div class="max-w-4xl w-full px-4 md:px-6">
       <div class="text-center mb-10 relative">
         <button
@@ -227,7 +287,6 @@
                 >
               </div>
             </div>
-
             <div
               id="score-history"
               class="mt-6 bg-gray-900 px-4 py-3 rounded-xl border border-gray-700 text-center w-full md:w-auto hidden"
@@ -259,7 +318,6 @@
                 id="res-summary"
                 class="space-y-4 text-gray-300 mb-6 list-none"
               ></ul>
-
               <div
                 id="references-container"
                 class="mt-auto pt-5 border-t border-gray-800 hidden"
@@ -290,6 +348,7 @@
           </div>
         </div>
       </div>
+
       <div
         id="error-card"
         class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center mb-8"
@@ -299,13 +358,54 @@
     </div>
 
     <script>
-      // MODAL (Se mantiene igual, comprimido)
+      // === NOTIFICACIONES (TOASTS) ===
+      function showNotification(message, type = "success") {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        const bgColor =
+          type === "success" ? "bg-green-600/90" : "bg-red-600/90";
+        const icon = type === "success" ? "✅" : "❌";
+        toast.className = `${bgColor} text-white px-6 py-3 rounded-lg shadow-2xl backdrop-blur-sm flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0 border border-white/10`;
+        toast.innerHTML = `<span>${icon}</span> <span class="text-sm font-medium">${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(
+          () => toast.classList.remove("translate-x-full", "opacity-0"),
+          10,
+        );
+        setTimeout(() => {
+          toast.classList.add("translate-x-full", "opacity-0");
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // === CONFIGURACIÓN IA ===
+      function loadAISettings() {
+        document.getElementById("custom-api-key").value =
+          localStorage.getItem("gemini_api_key") || "";
+        document.getElementById("custom-model").value =
+          localStorage.getItem("gemini_model") || "gemini-3.1-pro-preview";
+      }
+
+      function saveAISettings() {
+        const key = document.getElementById("custom-api-key").value.trim();
+        const model = document.getElementById("custom-model").value.trim();
+        localStorage.setItem("gemini_api_key", key);
+        localStorage.setItem("gemini_model", model);
+        showNotification("Configuración de IA guardada");
+      }
+
+      // === MODAL Y FUENTES RSS ===
       const modal = document.getElementById("settings-modal");
       const sourcesList = document.getElementById("sources-list");
+
       function toggleSettings() {
         modal.classList.toggle("hidden");
-        if (!modal.classList.contains("hidden")) loadSources();
+        if (!modal.classList.contains("hidden")) {
+          loadSources();
+          loadAISettings();
+        }
       }
+
       async function loadSources() {
         try {
           const res = await fetch("/api/v1/sources");
@@ -314,8 +414,11 @@
           data.sources.forEach((url) => {
             sourcesList.innerHTML += `<li class="flex justify-between items-center bg-gray-900/50 p-3 rounded-lg border border-gray-700 gap-3"><span class="text-xs text-gray-300 break-all">${url}</span><button onclick="deleteSource('${url}')" class="text-gray-500 hover:text-red-400 p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></li>`;
           });
-        } catch (e) {}
+        } catch (e) {
+          showNotification("Error al cargar fuentes", "error");
+        }
       }
+
       async function addSource() {
         const url = document.getElementById("new-source-url").value;
         if (!url) return;
@@ -326,7 +429,9 @@
         });
         document.getElementById("new-source-url").value = "";
         loadSources();
+        showNotification("Fuente añadida");
       }
+
       async function deleteSource(url) {
         await fetch("/api/v1/sources", {
           method: "DELETE",
@@ -334,14 +439,15 @@
           body: JSON.stringify({ url }),
         });
         loadSources();
+        showNotification("Fuente eliminada");
       }
 
-      // ORACLE LOGIC
+      // === LÓGICA DE ANÁLISIS ===
       const loadingTexts = [
-        "Conectando con Binance API...",
+        "Conectando con Binance...",
         "Calculando RSI...",
-        "Leyendo Sentimiento Macro...",
-        "Analizando con IA Quant...",
+        "Leyendo Sentimiento...",
+        "Consultando IA...",
         "Dibujando Gráficos...",
       ];
 
@@ -369,7 +475,7 @@
           document
             .getElementById("gauge-fill")
             .setAttribute("stroke-dasharray", `0, 100`);
-          tvContainer.classList.add("hidden"); // Ocultar grafico TV al recargar
+          tvContainer.classList.add("hidden");
 
           let textIndex = 0;
           document.getElementById("loading-text").textContent = loadingTexts[0];
@@ -381,14 +487,24 @@
           }, 1200);
 
           try {
-            const response = await fetch(`/api/v1/analyze/${ticker}`);
+            const userApiKey = localStorage.getItem("gemini_api_key") || "";
+            const userModel =
+              localStorage.getItem("gemini_model") || "gemini-3.1-pro-preview";
+
+            const response = await fetch(`/api/v1/analyze/${ticker}`, {
+              headers: {
+                "x-gemini-key": userApiKey,
+                "x-gemini-model": userModel,
+              },
+            });
+
             const data = await response.json();
             if (!response.ok)
-              throw new Error(data.detail || "Error desconocido");
+              throw new Error(data.detail || "Error en el servidor");
             clearInterval(textInterval);
 
+            // UI Update
             document.getElementById("res-ticker").textContent = data.ticker;
-
             let currentScore = 0;
             const scoreInterval = setInterval(() => {
               if (currentScore >= data.score) {
@@ -402,112 +518,84 @@
 
             const badge = document.getElementById("res-badge");
             badge.textContent = data.sentiment;
-            badge.className =
-              "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase tracking-widest shadow-inner ";
-            const gaugeFill = document.getElementById("gauge-fill");
-            gaugeFill.classList.remove(
+            const gFill = document.getElementById("gauge-fill");
+            gFill.classList.remove(
               "text-green-500",
               "text-red-500",
               "text-gray-500",
             );
 
             if (data.sentiment === "Bullish") {
-              badge.classList.add(
-                "bg-green-500/20",
-                "text-green-400",
-                "border",
-                "border-green-500/30",
-              );
-              gaugeFill.classList.add("text-green-500");
+              badge.className =
+                "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase bg-green-500/20 text-green-400 border border-green-500/30 shadow-inner";
+              gFill.classList.add("text-green-500");
               document.getElementById("res-score").className =
-                "text-4xl md:text-5xl font-black tracking-tighter text-green-400";
+                "text-4xl md:text-5xl font-black text-green-400";
             } else if (data.sentiment === "Bearish") {
-              badge.classList.add(
-                "bg-red-500/20",
-                "text-red-400",
-                "border",
-                "border-red-500/30",
-              );
-              gaugeFill.classList.add("text-red-500");
+              badge.className =
+                "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase bg-red-500/20 text-red-400 border border-red-500/30 shadow-inner";
+              gFill.classList.add("text-red-500");
               document.getElementById("res-score").className =
-                "text-4xl md:text-5xl font-black tracking-tighter text-red-400";
+                "text-4xl md:text-5xl font-black text-red-400";
             } else {
-              badge.classList.add(
-                "bg-gray-500/20",
-                "text-gray-400",
-                "border",
-                "border-gray-500/30",
-              );
-              gaugeFill.classList.add("text-gray-400");
+              badge.className =
+                "px-3 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold uppercase bg-gray-500/20 text-gray-400 border border-gray-500/30 shadow-inner";
+              gFill.classList.add("text-gray-400");
               document.getElementById("res-score").className =
-                "text-4xl md:text-5xl font-black tracking-tighter text-white";
+                "text-4xl md:text-5xl font-black text-white";
             }
 
-            setTimeout(() => {
-              gaugeFill.setAttribute("stroke-dasharray", `${data.score}, 100`);
-            }, 100);
+            setTimeout(
+              () =>
+                gFill.setAttribute("stroke-dasharray", `${data.score}, 100`),
+              100,
+            );
 
-            const summaryList = document.getElementById("res-summary");
-            summaryList.innerHTML = "";
+            // Summary
+            const sList = document.getElementById("res-summary");
+            sList.innerHTML = "";
             data.summary
               .split("\n")
               .filter((l) => l.trim() !== "")
               .forEach((line) => {
-                summaryList.innerHTML += `<li class="flex items-start gap-3 w-full"><span class="text-blue-500 mt-[2px] flex-shrink-0 text-sm">▶</span><p class="text-gray-300 text-sm md:text-base leading-relaxed break-words flex-1">${line.replace(/^(?:-\s*|\d+\.\s*)/, "").trim()}</p></li>`;
+                sList.innerHTML += `<li class="flex items-start gap-3 w-full min-w-0"><span class="text-blue-500 mt-[2px] flex-shrink-0 text-sm">▶</span><p class="text-gray-300 text-sm md:text-base leading-relaxed break-words flex-1">${line.replace(/^(?:-\s*|\d+\.\s*)/, "").trim()}</p></li>`;
               });
 
-            // HISTORIAL TENDENCIA (SQLITE)
-            const historyContainer = document.getElementById("score-history");
-            const historyDots = document.getElementById("history-dots");
-            if (data.history && data.history.length > 0) {
-              let dotsHTML = data.history
-                .map((s) => {
-                  let color =
-                    s >= 60
-                      ? "text-green-400"
-                      : s <= 40
-                        ? "text-red-400"
-                        : "text-gray-400";
-                  return `<span class="${color}">${s}</span>`;
-                })
+            // History
+            const hCont = document.getElementById("score-history");
+            if (data.history?.length > 0) {
+              document.getElementById("history-dots").innerHTML = data.history
+                .map(
+                  (s) =>
+                    `<span class="${s >= 60 ? "text-green-400" : s <= 40 ? "text-red-400" : "text-gray-400"}">${s}</span>`,
+                )
                 .join('<span class="text-gray-600 text-[10px]">➔</span>');
-              historyDots.innerHTML = dotsHTML;
-              historyContainer.classList.remove("hidden");
-            } else {
-              historyContainer.classList.add("hidden");
+              hCont.classList.remove("hidden");
             }
 
-            // REFERENCIAS
-            const refContainer = document.getElementById(
-              "references-container",
-            );
-            const refDiv = document.getElementById("res-references");
-            refDiv.innerHTML = "";
-            if (data.references && data.references.length > 0) {
+            // References
+            const rDiv = document.getElementById("res-references");
+            rDiv.innerHTML = "";
+            if (data.references?.length > 0) {
               data.references.forEach((ref) => {
-                refDiv.innerHTML += `<a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="group flex items-start gap-3 bg-gray-800/60 p-3 rounded-lg border border-gray-700/60 hover:border-blue-500/50 hover:bg-gray-800 transition-all text-left"><span class="flex-shrink-0 text-gray-500 group-hover:text-blue-400 transition-colors mt-0.5 text-sm">🔗</span><span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors break-words flex-1 leading-snug">${ref.title}</span></a>`;
+                rDiv.innerHTML += `<a href="${ref.url}" target="_blank" class="group flex items-start gap-3 bg-gray-800/60 p-3 rounded-lg border border-gray-700/60 hover:border-blue-500/50 hover:bg-gray-800 transition-all text-left"><span class="flex-shrink-0 text-gray-500 group-hover:text-blue-400 mt-0.5 text-sm">🔗</span><span class="text-xs text-gray-400 group-hover:text-gray-200 break-words flex-1 leading-snug">${ref.title}</span></a>`;
               });
-              refContainer.classList.remove("hidden");
-            } else {
-              refContainer.classList.add("hidden");
+              document
+                .getElementById("references-container")
+                .classList.remove("hidden");
             }
 
-            // TRADINGVIEW WIDGET (Inyección Dinámica)
+            // TradingView
             tvContainer.classList.remove("hidden");
             new TradingView.widget({
               autosize: true,
               symbol: "BINANCE:" + ticker + "USDT",
               interval: "D",
-              timezone: "Etc/UTC",
               theme: "dark",
               style: "1",
               locale: "es",
-              enable_publishing: false,
-              backgroundColor: "#111827", // Tailwind gray-900
-              gridColor: "#1F2937", // Tailwind gray-800
-              hide_top_toolbar: true,
-              hide_legend: true,
-              save_image: false,
+              backgroundColor: "#111827",
+              gridColor: "#1F2937",
               container_id: "tradingview_chart",
             });
 
