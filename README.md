@@ -1,28 +1,28 @@
 # 🔮 CryptoSentiment AI Oracle (v2.0)
 
-API RESTful y Dashboard interactivo que actúa como un **Oráculo de Mercado de grado institucional**. Combina análisis técnico (RSI), datos macroeconómicos (Fear & Greed Index) y análisis de narrativas (Noticias RSS) procesados por **Google Gemini 3.1 Pro/Flash**.
+API RESTful y Dashboard interactivo que actúa como un **Oráculo de Mercado de grado institucional**. Combina análisis técnico (RSI), datos macroeconómicos (Fear & Greed Index) y análisis de narrativas (Noticias RSS) procesados por Inteligencia Artificial (**Google Gemini, OpenAI o Anthropic**).
 
-## 🚀 Características
+## 🚀 Características Premium
 
-- **Análisis Híbrido (Quant + Qual):** Cruza datos de precios y volumen de Binance con indicadores técnicos (RSI 14d) y sentimiento de noticias.
+- **Análisis Híbrido (Quant + Qual):** Cruza datos de precios y volumen de Binance con indicadores técnicos (RSI 14d) y sentimiento de noticias en tiempo real.
 - **Memoria Temporal (SQLite):** El sistema recuerda análisis previos para detectar cambios de tendencia y divergencias.
 - **Trazabilidad Total:** Cada veredicto de la IA incluye enlaces directos a las fuentes originales para auditoría del usuario.
-- **BYOK (Bring Your Own Key):** Configuración dinámica desde la interfaz para usar tus propias API Keys y elegir cualquier modelo de Gemini (Flash o Pro).
-- **Dashboard Profesional:** Interfaz oscura con gráficos dinámicos de TradingView e historial de tendencia visual.
+- **BYOK Multi-Modelo (Plug & Play):** Soporte nativo para ChatGPT, Claude y Gemini. Trae tu propia API Key y configúrala directamente desde la interfaz web. ¡Cero configuración en el servidor!
+- **Dashboard Profesional:** Interfaz oscura con notificaciones integradas, gráficos interactivos de TradingView e historial de tendencia visual.
 
 ## 🛠️ Stack Tecnológico
 
 - **Backend:** Python 3.12+, FastAPI, HTTPX.
-- **IA:** Google GenAI SDK (Gemini 3.1 Pro/Flash).
-- **Base de Datos:** SQLite3 (Persistencia de historial y fuentes).
+- **IA:** Google GenAI, OpenAI SDK, Anthropic SDK.
+- **Base de Datos:** SQLite3 (Persistencia de historial) y JSON (Fuentes RSS).
 - **Frontend:** Tailwind CSS, JavaScript (Vanilla), TradingView Widgets.
 - **Datos:** Binance API, Alternative.me (F&G), y múltiples feeds RSS institucionales.
 
 ---
 
-## 🐳 Despliegue con Docker (Recomendado)
+## 🐳 Despliegue con Docker (Recomendado - Zero Config)
 
-La forma más rápida y segura de ejecutar el Oráculo es utilizando Docker. Esto garantiza que la aplicación funcione exactamente igual en cualquier máquina sin necesidad de configurar Python localmente.
+Hemos diseñado el sistema para que tenga un arranque **"Zero Config"**. No necesitas configurar variables de entorno ni tocar código.
 
 ### Requisitos previos:
 
@@ -31,35 +31,24 @@ La forma más rápida y segura de ejecutar el Oráculo es utilizando Docker. Est
 ### Pasos:
 
 1. **Clonar el repositorio:**
-
    ```bash
-   git clone [https://github.com/davidValades/CryptoSentiment-IA-API.git](https://github.com/davidValades/CryptoSentiment-IA-API.git)
+   git clone https://github.com/davidValades/CryptoSentiment-IA-API.git
    cd CryptoSentiment-IA-API
    ```
-
-2. **Configurar variables de entorno:**
-   Crea un archivo llamado `.env` en la raíz del proyecto y añade tu clave de Google AI Studio (y opcionalmente el modelo por defecto):
-
-   ```bash
-   GEMINI_API_KEY=tu_clave_de_google_ai_studio
-   GEMINI_MODEL=gemini-3.1-pro-preview
-   ```
-
-3. **Construir y levantar el contenedor:**
-   Ejecuta el siguiente comando para iniciar la aplicación en segundo plano:
-
+2. **Construir y levantar el contenedor:**
    ```bash
    docker-compose up --build -d
    ```
-
-Ya puedes acceder al Dashboard abriendo tu navegador en: `http://localhost:8000/`
+3. **Configuración:**
+   Abre tu navegador en `http://localhost:8000/`. El asistente de bienvenida automático te pedirá que introduzcas tu API Key y selecciones tu modelo preferido para empezar a operar.
 
 Nota: La base de datos SQLite y las configuraciones RSS persisten gracias a los volúmenes de Docker. No perderás tus datos aunque reinicies el contenedor.
 
-- Comandos útiles de Docker:
+Comandos útiles de Docker:
+
 - Ver los logs en tiempo real: docker-compose logs -f
 
-Detener el servidor: docker-compose down
+- Detener el servidor: docker-compose down
 
 ---
 
@@ -67,46 +56,36 @@ Detener el servidor: docker-compose down
 
 Si prefieres no usar Docker y ejecutarlo directamente en tu máquina:
 
-1. Clonar el repositorio:
+1. **Clonar el repositorio:**
 
    ```bash
-   git clone [https://github.com/davidValades/CryptoSentiment-IA-API.git](https://github.com/davidValades/CryptoSentiment-IA-API.git)
+   git clone https://github.com/davidValades/CryptoSentiment-IA-API.git
    cd CryptoSentiment-IA-API
    ```
 
-2. Crear entorno virtual:
-
+2. **Crear entorno virtual:**
    ```bash
    python -m venv venv
-   source venv/bin/activate # En Windows: venv\Scripts\activate
+   source venv/bin/activate  # En Windows: venv\Scripts\activate
    ```
-
-3. Instalar dependencias:
-
+3. **Instalar dependencias:**
    ```bash
    pip install -r requirements.txt
    ```
-
-4. Configurar variables de entorno:
-
-   Crea el archivo `.env` igual que en el paso de Docker.
-
-5. Iniciar el servidor:
-
+4. **Iniciar el servidor:**
    ```bash
    uvicorn main:app --reload
    ```
-
-   Accede en:`http://127.0.0.1:8000/`
+   Accede en: `http://127.0.0.1:8000/` y sigue el asistente de bienvenida automático.
 
 ---
 
-## ⚙️ Configuración Dinámica (Dashboard)
+## ⚙️ Panel de Control SaaS
 
-Desde el icono de engranaje (⚙️) en el Dashboard puedes:
+Desde el icono de engranaje (⚙️) en el Dashboard puedes gestionar tu propio ecosistema de análisis sin tocar el código:
 
-- **Gestionar Fuentes:** Añadir o eliminar canales de noticias RSS en tiempo real.
+- Ajustar el Cerebro: Cambia entre Gemini, GPT-4o o Claude al instante. Las credenciales se guardan de forma segura y local en tu navegador (`localStorage`). El servidor nunca almacena tus claves privadas.
 
-- **Ajustar el Cerebro:** Cambiar la API Key y el modelo de IA sin necesidad de tocar el código ni reiniciar el servidor.
+- Gestión de Modelos: El campo de modelo es libre; puedes escribir cualquier modelo compatible con las librerías oficiales (ej. `gpt-3.5-turbo`, `gemini-2.0-flash`, `claude-3-opus-20240229`).
 
-- **Persistencia:** Las claves de la IA se guardan de forma segura en el almacenamiento local de tu navegador (localStorage), mientras que la lista de fuentes RSS se guarda en el servidor.
+- Fuentes de Noticias (RSS): Añade o elimina canales de noticias institucionales en tiempo real. La lista se guarda en el servidor (`sources.json`) y es persistente para todos tus análisis futuros.
