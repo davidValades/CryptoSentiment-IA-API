@@ -4,8 +4,6 @@ services:
     container_name: crypto_oracle_prod
     ports:
       - "8000:8000"
-    env_file:
-      - .env
     volumes:
       - ./oracle_memory.db:/app/oracle_memory.db
       - ./sources.json:/app/sources.json
