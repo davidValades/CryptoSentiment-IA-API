@@ -22,7 +22,7 @@ API RESTful y Dashboard interactivo que actúa como un **Oráculo de Mercado de 
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/davidValades/CryptoSentiment-IA-API.git](https://github.com/davidValades/CryptoSentiment-IA-API.git)
+   git clone https://github.com/davidValades/CryptoSentiment-IA-API.git
    cd CryptoSentiment-IA-API
    ```
 2. **Crear entorno virtual:**
@@ -37,7 +37,7 @@ API RESTful y Dashboard interactivo que actúa como un **Oráculo de Mercado de 
    ```
 
 4. **Configurar variables de entorno:**
-   Crea un archivo ".env" en la raíz con:
+   Crea un archivo `.env` en la raíz con:
    ```bash
    GEMINI_API_KEY=tu_clave_de_google_ai_studio
    ```
@@ -50,7 +50,7 @@ Inicia el servidor:
 uvicorn main:app --reload
 ```
 
-Accede a la interfaz en: "http://127.0.0.1:8000/"
+Accede a la interfaz en: `http://127.0.0.1:8000/`
 
 ## ⚙️ Configuración Dinámica
 
